@@ -1,0 +1,31 @@
+2017-01-29 13:01:39.830 INFO    [global] (components.FieldLabel setFieldId) Field label wrong text:  
+2017-01-29 13:01:39.833 INFO    [global] (components.FieldLabel setFieldId) Field label wrong text: A 
+2017-01-29 13:01:39.834 INFO    [global] (components.FieldLabel setFieldId) Field label wrong text: B 
+2017-01-29 13:01:39.834 INFO    [global] (components.FieldLabel setFieldId) Field label wrong text: C 
+2017-01-29 13:01:39.835 INFO    [global] (components.FieldLabel setFieldId) Field label wrong text: D 
+2017-01-29 13:01:39.836 INFO    [global] (components.FieldLabel setFieldId) Field label wrong text: E 
+2017-01-29 13:01:39.837 INFO    [global] (components.FieldLabel setFieldId) Field label wrong text: F 
+2017-01-29 13:01:39.839 INFO    [global] (components.FieldLabel setFieldId) Field label wrong text: G 
+2017-01-29 13:01:39.839 INFO    [global] (components.FieldLabel setFieldId) Field label wrong text: H 
+2017-01-29 13:01:39.840 INFO    [global] (components.FieldLabel setFieldId) Field label wrong text: I 
+2017-01-29 13:01:39.841 INFO    [global] (components.FieldLabel setFieldId) Field label wrong text: J 
+2017-01-29 13:01:39.844 INFO    [global] (components.FieldLabel setFieldId) Field label wrong text: 1 
+2017-01-29 13:01:39.848 INFO    [global] (components.FieldLabel setFieldId) Field label wrong text: 2 
+2017-01-29 13:01:39.849 INFO    [global] (components.FieldLabel setFieldId) Field label wrong text: 3 
+2017-01-29 13:01:39.851 INFO    [global] (components.FieldLabel setFieldId) Field label wrong text: 4 
+2017-01-29 13:01:39.853 INFO    [global] (components.FieldLabel setFieldId) Field label wrong text: 5 
+2017-01-29 13:01:39.854 INFO    [global] (components.FieldLabel setFieldId) Field label wrong text: 6 
+2017-01-29 13:01:39.856 INFO    [global] (components.FieldLabel setFieldId) Field label wrong text: 7 
+2017-01-29 13:01:39.858 INFO    [global] (components.FieldLabel setFieldId) Field label wrong text: 8 
+2017-01-29 13:01:39.859 INFO    [global] (components.FieldLabel setFieldId) Field label wrong text: 9 
+2017-01-29 13:01:39.860 INFO    [global] (components.FieldLabel setFieldId) Field label wrong text: 10 
+2017-01-29 13:01:40.981 INFO    [global] (components.FieldLabel mouseReleased) User click on A1 
+2017-01-29 13:01:41.701 INFO    [global] (components.FieldLabel mouseReleased) User click on B2 
+2017-01-29 13:01:42.277 INFO    [global] (components.FieldLabel mouseReleased) User click on C3 
+2017-01-29 13:01:42.757 INFO    [global] (components.FieldLabel mouseReleased) User click on D4 
+2017-01-29 13:01:43.173 INFO    [global] (components.FieldLabel mouseReleased) User click on E5 
+2017-01-29 13:01:43.629 INFO    [global] (components.FieldLabel mouseReleased) User click on F6 
+2017-01-29 13:01:44.116 INFO    [global] (components.FieldLabel mouseReleased) User click on G7 
+2017-01-29 13:01:44.613 INFO    [global] (components.FieldLabel mouseReleased) User click on H8 
+2017-01-29 13:01:45.061 INFO    [global] (components.FieldLabel mouseReleased) User click on I9 
+2017-01-29 13:01:45.372 INFO    [global] (components.FieldLabel mouseReleased) User click on J10 
