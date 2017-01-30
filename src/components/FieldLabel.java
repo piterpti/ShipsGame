@@ -1,6 +1,7 @@
 package components;
 
 import java.awt.Color;
+import java.awt.Cursor;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.io.IOException;
@@ -51,12 +52,12 @@ public class FieldLabel extends JLabel implements MouseListener{
 
 	@Override
 	public void mouseEntered(MouseEvent e) {
-		
+		setCursor(new Cursor(Cursor.HAND_CURSOR));
 	}
 
 	@Override
 	public void mouseExited(MouseEvent e) {
-		
+		setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
 	}
 
 	@Override
@@ -82,6 +83,8 @@ public class FieldLabel extends JLabel implements MouseListener{
 		}
 		if (txt.indexOf(':') < 0) {
 			LOGGER.info("Field label wrong text: " + txt);
+			removeMouseListener(this);
+			setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
 			return;
 		}
 		
@@ -101,7 +104,11 @@ public class FieldLabel extends JLabel implements MouseListener{
 		fieldId.setX(xValue);
 		fieldId.setY(yValue);
 		
-		setBorder(BorderFactory.createLineBorder(Color.GREEN, 2));
+		setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
+	}
+	
+	public FieldId getFieldId() {
+		return fieldId;
 	}
 	
 }

@@ -32,4 +32,18 @@ public class FieldId {
 	public void setY(int y) {
 		Y = y;
 	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof FieldId) {
+			FieldId tmpId = (FieldId) obj;
+			if (tmpId.X == X && tmpId.Y == Y) {
+				return true;
+			} else {
+				return false;
+			}
+		} else {
+			return false;
+		}
+	}
 }

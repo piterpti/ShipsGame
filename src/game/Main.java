@@ -4,6 +4,7 @@ import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
 
 import layout.GamePanel;
+import tools.ShipGenerator;
 
 /**
  * Main class
@@ -35,5 +36,12 @@ public class Main extends JFrame {
 		this.setResizable(false);
 		this.pack();
 		this.setVisible(true);
+		
+		Board board = new Board();
+		ShipGenerator.GenerateRandomShips(board);
+		gamePanel.refreshPanel(board);
+		
+		System.out.println(board.toString());
+		
 	}
 }
