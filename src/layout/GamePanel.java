@@ -17,11 +17,11 @@ public class GamePanel extends JPanel {
 	private final Color FIELD_COLOR = new Color(255, 0, 0);
 	private final Dimension FIELD_SIZE = new Dimension(50, 50);
 	
-	private Board board;
+	private BoardGui board;
 	
 	public GamePanel() {
 		super();
-		this.board = new Board();
+		this.board = new BoardGui();
 		this.setLayout(board);
 		addButtons();
 	}

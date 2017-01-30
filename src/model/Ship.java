@@ -5,17 +5,10 @@ import java.util.LinkedList;
 
 public class Ship {
 
-	public enum ShipType {
-		ONE_MAST,
-		TWO_MAST,
-		THREE_MAST,
-		FOUR_MAST
-	};
-	
 	private List<FieldId> shipFields = new LinkedList<>();
 	private ShipType shipType;
 	
-	public Ship(List aShipFields, ShipType aShipType) {
+	public Ship(List<FieldId> aShipFields, ShipType aShipType) {
 		shipFields = aShipFields;
 		shipType = aShipType;
 	}
