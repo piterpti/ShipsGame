@@ -1,123 +1,98 @@
 package components;
 
 import java.awt.Color;
-import java.awt.Cursor;
-import java.awt.event.MouseEvent;
-import java.awt.event.MouseListener;
-import java.io.IOException;
-import java.util.logging.Logger;
+import java.awt.Dimension;
 
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
+import javax.swing.SwingConstants;
 
-import game.Main;
-import model.FieldId;
+import model.FieldType;
 
-public class FieldLabel extends JLabel implements MouseListener{
+public class FieldLabel extends JLabel {
 
 	private static final long serialVersionUID = 1L;
 	
-	private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+	private static final Dimension DEFAULT_DIM = new Dimension(50, 50);
 	
-	private String board;
+	private int xPos;
+	private int yPos;
 	
-	static {
-		try {
-			logger.MyLogger.setup();
-		} catch (IOException e) {
-			e.printStackTrace();
+	private FieldType fieldType = FieldType.EMPTY;
+
+	public FieldLabel() {
+		super("", SwingConstants.CENTER);
+		defaultSettings();
+	}
+	
+	public FieldLabel(String txt) {
+		super(txt, SwingConstants.CENTER);
+		defaultSettings();
+	}
+	
+	public FieldLabel(int aX, int aY) {
+		super("", SwingConstants.CENTER);
+		xPos = aX;
+		yPos = aY;
+		defaultSettings();
+	}
+	
+	public FieldLabel(String txt, int aX, int aY) {
+		super(txt, SwingConstants.CENTER);
+		xPos = aX;
+		yPos = aY;
+		defaultSettings();
+	}
+	
+	@Override
+	public String toString() {
+		return xPos + "x" + yPos;
+	}
+	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof FieldLabel) {
+			FieldLabel label = (FieldLabel) obj;
+			
+			if (label.getX() == xPos && label.getY() == yPos) {
+				return true;
+			} else {
+				return false;
+			}
 		}
-	}
-	
-	private FieldId fieldId = null;
-	
-	public FieldLabel(String aBoard) {
-		super();
-		this.addMouseListener(this);
-		board = aBoard;
-	}
-	
-	public FieldLabel(String txt, String aBoard) {
-		super(txt);
-		this.addMouseListener(this);
-		setFieldId(txt);
-		board = aBoard;
-	}
-	
-	public FieldLabel(String txt, int aligment, String aBoard) {
-		super(txt, aligment);
-		this.addMouseListener(this);
-		setFieldId(txt);
-		board = aBoard;
+		return false;
 	}
 
-	@Override
-	public void mouseClicked(MouseEvent e) {
-		
+	public int getxPos() {
+		return xPos;
 	}
 
-	@Override
-	public void mouseEntered(MouseEvent e) {
-		setCursor(new Cursor(Cursor.HAND_CURSOR));
+	public void setxPos(int xPos) {
+		this.xPos = xPos;
 	}
 
-	@Override
-	public void mouseExited(MouseEvent e) {
-		setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+	public int getyPos() {
+		return yPos;
 	}
 
-	@Override
-	public void mousePressed(MouseEvent e) {
-		
+	public void setyPos(int yPos) {
+		this.yPos = yPos;
 	}
 
-	@Override
-	public void mouseReleased(MouseEvent e) {
-		// propably frame field so we exit
-		if (fieldId == null) {
-			return;
-		}
-		
-		// call click event on board..
-		Main.boardEvent(board, fieldId);
-		
-		LOGGER.info("User click on " + fieldId.toString() + " on " + board);
-		
-	}
-	
-	private void setFieldId(String txt) {
-		if (txt == null) {
-			LOGGER.warning("Null text value for FieldLabel");
-			return;
-		}
-		if (txt.indexOf(':') < 0) {
-			LOGGER.info("Field label wrong text: " + txt);
-			removeMouseListener(this);
-			setBorder(BorderFactory.createLineBorder(Color.BLACK, 2));
-			return;
-		}
-		
-		String[] fieldData = txt.split(":");
-		
-		int yValue = -1;
-		char xValue = ' ';
-		try {
-			yValue = Integer.valueOf(fieldData[0]);
-			xValue = fieldData[1].charAt(0);
-		} catch (Exception e) {
-			LOGGER.warning("Wrong data for FieldID: " + txt);
-			return;
-		}
-		
-		fieldId = new FieldId();
-		fieldId.setX(xValue);
-		fieldId.setY(yValue);
-		
+	private void defaultSettings() {
+		setSize(DEFAULT_DIM);
+		setPreferredSize(DEFAULT_DIM);
+		setMinimumSize(DEFAULT_DIM);
+		setMaximumSize(DEFAULT_DIM);
+		setOpaque(true);
 		setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
 	}
-	
-	public FieldId getFieldId() {
-		return fieldId;
+
+	public FieldType getFieldType() {
+		return fieldType;
 	}
-	
+
+	public void setFieldType(FieldType fieldType) {
+		this.fieldType = fieldType;
+	}
 }

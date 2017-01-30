@@ -1,131 +1,144 @@
 package layout;
 
-import java.awt.Color;
-import java.awt.Dimension;
+import java.awt.Cursor;
+import java.awt.GridLayout;
+import java.awt.event.MouseEvent;
+import java.awt.event.MouseListener;
 import java.util.LinkedList;
 import java.util.logging.Logger;
 
-import javax.swing.JLabel;
 import javax.swing.JPanel;
-import javax.swing.SwingConstants;
 
 import components.FieldLabel;
-import game.Board;
-import model.FieldId;
-import model.ShipType;
+import model.Board;
+import model.FieldType;
+import model.Point;
 
 public class GamePanel extends JPanel {
 	
+	private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+
 	private static final long serialVersionUID = 1L;
 	
-	private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+	private LinkedList<FieldLabel> fields;
 	
-	private final Color boardFrameColor = new Color(150, 150, 150);
-	private final Color DEFAULT_FIELD_COLOR = new Color(200, 200, 200);
-	private final Dimension FIELD_SIZE = new Dimension(50, 50);
-	
-	private BoardGui board;
-	
-	private LinkedList<FieldLabel> fields = new LinkedList<>();
-	
-	public GamePanel(String aBoard) {
-		super();
-		this.board = new BoardGui();
-		this.setLayout(board);
-		addButtons(aBoard);
+	private boolean enemy = false;
+
+	public GamePanel(boolean aEnemy) {
+		super(new GridLayout(11, 11));
+		fields = new LinkedList<>();
+		enemy = aEnemy;
+		addLabels();
 	}
 	
-	private void addButtons(String board) {
-		FieldLabel emptyLabel = new FieldLabel(board);
-		add(emptyLabel);
-		fields.add(emptyLabel);
+	private void addLabels() {
+		FieldLabel emptyLabel = new FieldLabel();
+		addLabel(emptyLabel);
 		
 		char letter = 'A';
-		for (int i = 1; i < 11; i++) {
-			FieldLabel letterLabel = new FieldLabel(letter + "", SwingConstants.CENTER, board);
-			setDefaultSettings(letterLabel, boardFrameColor);
-			add(letterLabel);
-			fields.add(letterLabel);
-			letter =(char)((int) letter + 1);
+		for (int x = 0; x < 10; x++) {
+			FieldLabel letterLabel = new FieldLabel(letter + "");
+			addLabel(letterLabel);
+			letter++;
 		}
 		
-		
-		for (int i = 1; i < 11; i++) {
-			letter = 'A';
+		for (int y = 0; y < 10; y++) {
 			for (int x = 0; x < 11; x++) {
+				FieldLabel label = null;
 				if (x == 0) {
-					FieldLabel numberLabel = new FieldLabel(i + "", SwingConstants.CENTER, board);
-					setDefaultSettings(numberLabel, boardFrameColor);
-					add(numberLabel);
-					fields.add(numberLabel);
+					label = new FieldLabel(y + 1 + "");
 				} else {
-					FieldLabel label = new FieldLabel(i + ":" + letter, SwingConstants.CENTER, board);
-					setDefaultSettings(label, DEFAULT_FIELD_COLOR);
-					add(label);
-					fields.add(label);
-					letter =(char)((int) letter + 1);
+					label = new FieldLabel("", x-1, y);
+					label.addMouseListener(new FieldClick());
 				}
+				addLabel(label);
+			}
+		}
+		LOGGER.info("Board created");
+	}
+	
+	private void addLabel(FieldLabel label) {
+		add(label);
+		fields.add(label);
+	}
+	
+	public void setEnemy(boolean aEnemy) {
+		enemy = aEnemy;
+	}
+	
+	public void refresh(Board board) {
+		FieldType[][] fieldsBoard = board.getFields();
+		
+		for (FieldLabel fl : fields) {
+			fl.setFieldType(fieldsBoard[fl.getxPos()][fl.getyPos()]);
+			
+			switch(fl.getFieldType()) {
+				case SHIP:
+					fl.setText("Ship");
+					break;
+				default:
+					break;
 			}
 		}
 		
 	}
 	
-	private void setDefaultSettings(JLabel cmp, Color c) {
-		cmp.setBackground(c);
-		cmp.setSize(FIELD_SIZE);
-		cmp.setPreferredSize(FIELD_SIZE);
-		cmp.setMinimumSize(FIELD_SIZE);
-		cmp.setMaximumSize(FIELD_SIZE);
-		cmp.setOpaque(true);
-	}
-	
-	public void refreshPanel(Board board) {
-		ShipType[][] ships = board.getFields();
-		if (ships == null) {
-			LOGGER.info("variable fields is null - cannot refresh");
-			return;
-		}
-		for (int x = 0; x < ships[0].length; x++) {
-			for (int y = 0; y < ships.length; y++) {
-				FieldId id = new FieldId();
-				char xChar =(char)((int)'A' + x);
-				id.setX(xChar);
-				id.setY(y + 1);	
-				
-				for (FieldLabel label : fields) {
-					FieldId labelId = label.getFieldId();
-					if (labelId == null) {
-						continue;
-					}
-					
-					if (labelId.equals(id)) {
-						switch (ships[y][x]) {
-							case DAMAGED:
-								label.setText("DMG");
-								break;
-							case DESTROYED:
-								label.setText("DES");
-								break;
-							case NO_ONE:
-								label.setText("");
-								break;
-							case ONE_MAST:
-								label.setText("1");
-								break;
-							case TWO_MAST:
-								label.setText("2");
-								break;
-							case THREE_MAST:
-								label.setText("3");
-								break;
-							case FOUR_MAST:
-								label.setText("4");
-								break;
-						}
-					}
-				}
+	public FieldLabel findLabelWithCords(int xp, int yp) {
+		FieldLabel label = new FieldLabel(xp, yp);
+		for (FieldLabel fl : fields) {
+			if (label.equals(fl)) {
+				return fl;
 			}
 		}
+		return null;
 	}
 	
+	private void handleClickEvent(FieldLabel clicked) {
+		if (enemy) {
+			Point clickedPoint = new Point(clicked.getxPos(), clicked.getyPos());
+		}
+	}
+	
+	class FieldClick implements MouseListener {
+
+		@Override
+		public void mouseClicked(MouseEvent e) {
+				
+		}
+
+		@Override
+		public void mouseEntered(MouseEvent e) {
+			if (enemy) {
+				setCursor(new Cursor(Cursor.HAND_CURSOR));
+			}
+		}
+
+		@Override
+		public void mouseExited(MouseEvent e) {
+			setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+		}
+
+		@Override
+		public void mousePressed(MouseEvent e) {
+			
+		}
+
+		@Override
+		public void mouseReleased(MouseEvent e) {
+			FieldLabel label = (FieldLabel) e.getComponent();
+			handleClickEvent(label);
+			StringBuffer buffer = new StringBuffer();
+			buffer.append("User click on");
+			buffer.append(label.getxPos());
+			buffer.append("x");
+			buffer.append(label.getyPos());
+			if (enemy) {
+				buffer.append(" enemy board");
+			} else {
+				buffer.append(" own board");
+			}
+			LOGGER.info(buffer.toString());
+		}
+		
+	}
 }

@@ -1,43 +1,26 @@
 package model;
 
-import java.util.List;
 import java.util.LinkedList;
 
 public class Ship {
 
-	private List<FieldId> shipFields = new LinkedList<>();
-	private ShipType shipType;
-	private int lives;
+	private LinkedList<Point> shipFields;
+	private final int size;
 	
-	public Ship(List<FieldId> aShipFields, ShipType aShipType) {
-		shipFields = aShipFields;
-		shipType = aShipType;
-		lives = aShipFields.size();
+	public Ship(LinkedList<Point> shipFields) {
+		this.shipFields = shipFields;
+		this.size = shipFields.size();
 	}
 
-	public List<FieldId> getShipFields() {
+	public LinkedList<Point> getShipFields() {
 		return shipFields;
 	}
 
-	public void setShipFields(List<FieldId> shipFields) {
+	public void setShipFields(LinkedList<Point> shipFields) {
 		this.shipFields = shipFields;
 	}
-
-	public ShipType getShipType() {
-		return shipType;
-	}
-
-	public void setShipType(ShipType shipType) {
-		this.shipType = shipType;
-	}
-
-	public int getLives() {
-		return lives;
-	}
-
-	public void setLives(int lives) {
-		this.lives = lives;
-	}
 	
-	
+	public int getSize() {
+		return size;
+	}
 }
