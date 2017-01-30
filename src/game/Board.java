@@ -1,14 +1,24 @@
 package game;
 
+import java.util.LinkedList;
+import java.util.logging.Logger;
+
+import model.FieldId;
+import model.Ship;
 import model.ShipType;
 
 public class Board {
+	
+	private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
 	private ShipType[][] fields;
+	
+	private Ship[] ships;
 	
 	public Board() {
 		fields = new ShipType[11][11];
 		clearBoard();
+		ships = new Ship[10];
 	}
 	
 	private void clearBoard() {
@@ -59,6 +69,56 @@ public class Board {
 		}
 		
 		return result.toString();
+	}
+	
+	public void setShips(LinkedList<Ship> aShips) {
+		for (int i = 0; i < aShips.size(); i++) {
+			ships[i] = aShips.get(i);
+			for (FieldId fId : ships[i].getShipFields()) {
+				fields[fId.getX()][fId.getY()] = ships[i].getShipType();
+			}
+		}
+	}
+	
+	public void clickEventEnemy(FieldId id) {
+		for (int x = 0; x < fields.length; x++) {
+			for (int  y = 0; y < fields[0].length; y++) {
+				FieldId aid = new FieldId();
+				char xChar =(char)((int)'A' + x);
+				aid.setX(xChar);
+				aid.setY(y + 1);
+				if (aid.equals(id)) {
+					ShipType type = fields[y][x];
+					if (type == ShipType.FOUR_MAST || type == ShipType.THREE_MAST ||
+							type == ShipType.TWO_MAST || type == ShipType.ONE_MAST) {
+						fields[y][x] = ShipType.DAMAGED;
+						checkIsShipDestroyed(id);
+					}
+				}
+			}
+		}
+	}
+	
+	public void clickEventMy(FieldId id) {
+		
+	}
+	
+	private boolean checkIsShipDestroyed(FieldId fId) {
+		for (Ship ship : ships) {
+			if (ship != null) {
+				int shipLive = ship.getLives();
+				for (FieldId tmpId : ship.getShipFields()) {
+					if (fId.equals(tmpId)) {
+						shipLive--;
+					}
+				}
+				
+				if (shipLive < 1) {
+					LOGGER.info("Ship destroyed!");
+				}
+			}
+		}
+		return false;
 	}
 
 }

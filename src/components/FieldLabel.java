@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 
+import game.Main;
 import model.FieldId;
 
 public class FieldLabel extends JLabel implements MouseListener{
@@ -17,6 +18,8 @@ public class FieldLabel extends JLabel implements MouseListener{
 	private static final long serialVersionUID = 1L;
 	
 	private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+	
+	private String board;
 	
 	static {
 		try {
@@ -28,21 +31,24 @@ public class FieldLabel extends JLabel implements MouseListener{
 	
 	private FieldId fieldId = null;
 	
-	public FieldLabel() {
+	public FieldLabel(String aBoard) {
 		super();
 		this.addMouseListener(this);
+		board = aBoard;
 	}
 	
-	public FieldLabel(String txt) {
+	public FieldLabel(String txt, String aBoard) {
 		super(txt);
 		this.addMouseListener(this);
 		setFieldId(txt);
+		board = aBoard;
 	}
 	
-	public FieldLabel(String txt, int aligment) {
+	public FieldLabel(String txt, int aligment, String aBoard) {
 		super(txt, aligment);
 		this.addMouseListener(this);
 		setFieldId(txt);
+		board = aBoard;
 	}
 
 	@Override
@@ -67,12 +73,15 @@ public class FieldLabel extends JLabel implements MouseListener{
 
 	@Override
 	public void mouseReleased(MouseEvent e) {
-		// propably frame field
+		// propably frame field so we exit
 		if (fieldId == null) {
 			return;
 		}
 		
-		LOGGER.info("User click on " + fieldId.toString());
+		// call click event on board..
+		Main.boardEvent(board, fieldId);
+		
+		LOGGER.info("User click on " + fieldId.toString() + " on " + board);
 		
 	}
 	

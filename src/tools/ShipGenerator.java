@@ -1,7 +1,12 @@
 package tools;
 
+import java.util.LinkedList;
+import java.util.List;
+
 import game.Board;
+import model.Ship;
 import model.ShipType;
+import model.FieldId;
 
 public class ShipGenerator {
 
@@ -15,18 +20,25 @@ public class ShipGenerator {
 	 */
 	public static void GenerateRandomShips(Board board) {
 		
-		board.getFields()[0][0] = ShipType.FOUR_MAST;
-		board.getFields()[0][1] = ShipType.FOUR_MAST;
-		board.getFields()[0][2] = ShipType.FOUR_MAST;
-		board.getFields()[0][3] = ShipType.FOUR_MAST;
+		LinkedList<Ship> ships = new LinkedList<>();
 		
-		board.getFields()[2][1] = ShipType.THREE_MAST;
-		board.getFields()[2][2] = ShipType.THREE_MAST;
-		board.getFields()[2][3] = ShipType.THREE_MAST;
+		List<FieldId> fields = new LinkedList<>();
+		fields.add(new FieldId(0, 0));
+		ships.add(new Ship(fields, ShipType.ONE_MAST));
 		
-		board.getFields()[4][3] = ShipType.THREE_MAST;
-		board.getFields()[4][2] = ShipType.THREE_MAST;
-		board.getFields()[4][1] = ShipType.THREE_MAST;
+		fields = new LinkedList<>();
+		fields.add(new FieldId(2, 2));
+		ships.add(new Ship(fields, ShipType.ONE_MAST));
+		
+		fields = new LinkedList<>();
+		fields.add(new FieldId(4, 4));
+		ships.add(new Ship(fields, ShipType.ONE_MAST));
+		
+		fields = new LinkedList<>();
+		fields.add(new FieldId(6, 6));
+		ships.add(new Ship(fields, ShipType.ONE_MAST));
+		
+		board.setShips(ships);
 	}
 	
 }

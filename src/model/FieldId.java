@@ -4,12 +4,12 @@ public class FieldId {
 	
 	public FieldId(){};
 	
-	public FieldId(char x, int y) {
+	public FieldId(int x, int y) {
 		super();
 		X = x;
 		Y = y;
 	}
-	private char X;
+	private int X;
 	private int Y;
 	
 	@Override
@@ -17,7 +17,7 @@ public class FieldId {
 		return X + "" + Y;
 	}
 	
-	public char getX() {
+	public int getX() {
 		return X;
 	}
 	

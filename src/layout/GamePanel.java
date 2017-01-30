@@ -28,21 +28,21 @@ public class GamePanel extends JPanel {
 	
 	private LinkedList<FieldLabel> fields = new LinkedList<>();
 	
-	public GamePanel() {
+	public GamePanel(String aBoard) {
 		super();
 		this.board = new BoardGui();
 		this.setLayout(board);
-		addButtons();
+		addButtons(aBoard);
 	}
 	
-	private void addButtons() {
-		FieldLabel emptyLabel = new FieldLabel("");
+	private void addButtons(String board) {
+		FieldLabel emptyLabel = new FieldLabel(board);
 		add(emptyLabel);
 		fields.add(emptyLabel);
 		
 		char letter = 'A';
 		for (int i = 1; i < 11; i++) {
-			FieldLabel letterLabel = new FieldLabel(letter + "", SwingConstants.CENTER);
+			FieldLabel letterLabel = new FieldLabel(letter + "", SwingConstants.CENTER, board);
 			setDefaultSettings(letterLabel, boardFrameColor);
 			add(letterLabel);
 			fields.add(letterLabel);
@@ -54,12 +54,12 @@ public class GamePanel extends JPanel {
 			letter = 'A';
 			for (int x = 0; x < 11; x++) {
 				if (x == 0) {
-					FieldLabel numberLabel = new FieldLabel(i + "", SwingConstants.CENTER);
+					FieldLabel numberLabel = new FieldLabel(i + "", SwingConstants.CENTER, board);
 					setDefaultSettings(numberLabel, boardFrameColor);
 					add(numberLabel);
 					fields.add(numberLabel);
 				} else {
-					FieldLabel label = new FieldLabel(i + ":" + letter, SwingConstants.CENTER);
+					FieldLabel label = new FieldLabel(i + ":" + letter, SwingConstants.CENTER, board);
 					setDefaultSettings(label, DEFAULT_FIELD_COLOR);
 					add(label);
 					fields.add(label);
