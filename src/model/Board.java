@@ -52,4 +52,23 @@ public class Board {
 		this.ships = ships;
 		putShips();
 	}
+	
+	public void checkIsShipHit(Point point) {
+		for (Ship s : ships) {
+			boolean shipDestroyed = false;
+			for (Point p : s.getShipFields()) {
+				if (p.equals(point)) {
+					p.setDamged(true);
+					shipDestroyed = s.liveMinusAndItsDead();
+					fields[p.getX()][p.getY()] = FieldType.DAMAGED;
+				}
+			}
+			
+			if (shipDestroyed) {
+				for (Point p : s.getShipFields()) {
+					fields[p.getX()][p.getY()] = FieldType.DESTROYED;
+				}
+			}
+		}
+	}
 }

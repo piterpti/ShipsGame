@@ -4,6 +4,7 @@ public class Point {
 
 	private int x;
 	private int y;
+	private boolean damaged = false;
 	
 	public Point(int x, int y) {
 		super();
@@ -26,5 +27,25 @@ public class Point {
 	public void setY(int y) {
 		this.y = y;
 	}
+
+	public boolean isDamged() {
+		return damaged;
+	}
+
+	public void setDamged(boolean damged) {
+		this.damaged = damged;
+	}
 	
+	@Override
+	public boolean equals(Object obj) {
+		if (obj instanceof Point) {
+			Point p = (Point) obj;
+			if (x == p.getX() && y == p.getY()) {
+				return true;
+			}
+		} else {
+			return false;
+		}
+		return false;
+	}
 }

@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import javax.swing.JPanel;
 
 import components.FieldLabel;
+import game.Main;
 import model.Board;
 import model.FieldType;
 import model.Point;
@@ -76,7 +77,20 @@ public class GamePanel extends JPanel {
 				case SHIP:
 					fl.setText("Ship");
 					break;
+				case DAMAGED:
+					fl.setText("Damaged");
+					break;
+				case DESTROYED:
+					fl.setText("Destroyed");
+					break;
+				case EMPTY:
+					fl.setText("");
+					break;
+				case SHOOTED:
+					fl.setText(".");
+					break;
 				default:
+					LOGGER.info("Unkonw action");
 					break;
 			}
 		}
@@ -96,6 +110,8 @@ public class GamePanel extends JPanel {
 	private void handleClickEvent(FieldLabel clicked) {
 		if (enemy) {
 			Point clickedPoint = new Point(clicked.getxPos(), clicked.getyPos());
+			Main.enemyBoard.checkIsShipHit(clickedPoint);
+			Main.refreshPanels();
 		}
 	}
 	
@@ -128,7 +144,7 @@ public class GamePanel extends JPanel {
 			FieldLabel label = (FieldLabel) e.getComponent();
 			handleClickEvent(label);
 			StringBuffer buffer = new StringBuffer();
-			buffer.append("User click on");
+			buffer.append("User click on ");
 			buffer.append(label.getxPos());
 			buffer.append("x");
 			buffer.append(label.getyPos());

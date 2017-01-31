@@ -5,7 +5,7 @@ import java.util.LinkedList;
 public class Ship {
 
 	private LinkedList<Point> shipFields;
-	private final int size;
+	private int size;
 	
 	public Ship(LinkedList<Point> shipFields) {
 		this.shipFields = shipFields;
@@ -22,5 +22,10 @@ public class Ship {
 	
 	public int getSize() {
 		return size;
+	}
+	
+	public boolean liveMinusAndItsDead() {
+		size--;		
+		return size < 1;
 	}
 }
