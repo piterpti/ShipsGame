@@ -9,6 +9,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
+import bot.Bot;
 import layout.GamePanel;
 import logger.MyLogger;
 import model.Board;
@@ -24,15 +25,15 @@ import tools.ShipGenerator;
 public class Main extends JFrame {
 	
 	private static final long serialVersionUID = 1L;
-	
-	public static final String MY_BOARD = "my_board";
-	public static final String ENEMY_BOARD = "enemy_board";
-	
-	public static GamePanel myPanel;
-	public static GamePanel enemyPanel;
-	
+
 	public static Board myBoard;
 	public static Board enemyBoard;
+	
+	public static Bot bot;
+	public static boolean userMove = true;
+	
+	private static GamePanel myPanel;
+	private static GamePanel enemyPanel;
 	
 	private JLabel movementLabel = new JLabel("Ruch");
 	
@@ -95,19 +96,13 @@ public class Main extends JFrame {
 		add(panel);
 		this.pack();
 		this.setVisible(true);
+		
+		startGameWithComputer();
 	}
 	
 	private void initComponents() {
 		myPanel = new GamePanel(false);
-		myBoard = new Board();
-		ShipGenerator.generateShips(myBoard);
-		
-		enemyPanel = new GamePanel(true);
-		enemyPanel.setEnemy(true);
-		enemyBoard = new Board();
-		ShipGenerator.generateShips(enemyBoard);
-		
-		refreshPanels();		
+		enemyPanel = new GamePanel(true);				
 	}
 	
 	public static void refreshPanels() {
@@ -129,6 +124,19 @@ public class Main extends JFrame {
 		JOptionPane.showMessageDialog(null, "You win!", "Game over", JOptionPane.OK_OPTION);
 		System.exit(0);
 		return true;
+	}
+	
+	private void startGameWithComputer() {
+		
+		myBoard = new Board();
+		myBoard.setMyBoard(true);
+		ShipGenerator.generateShips(myBoard);
+		
+		bot = new Bot();
+		enemyBoard = Bot.myBoard;
+		bot.nextTurn();
+		
+		refreshPanels();
 	}
 	
 	

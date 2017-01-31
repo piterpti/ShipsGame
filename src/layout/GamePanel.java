@@ -81,8 +81,8 @@ public class GamePanel extends JPanel {
 				continue;
 			}
 			fl.setFieldType(fieldsBoard[fl.getxPos()][fl.getyPos()]);
-			
-			switch(fl.getFieldType()) {
+			if (board.isMyBoard()) {
+				switch(fl.getFieldType()) {
 				case SHIP:
 					fl.setText("Ship");
 					break;
@@ -104,6 +104,24 @@ public class GamePanel extends JPanel {
 				default:
 					LOGGER.info("Unkonw action");
 					break;
+				}
+				
+			} else {
+				switch (fl.getFieldType()) {
+				case DAMAGED:
+					fl.setText("dmg");
+					break;
+				case DESTROYED:
+					fl.setText("dstr");
+					break;
+				case SHOOTED:
+					fl.setText(".");
+					break;
+				case FRAME:
+					break;
+				default:
+					break;
+				}
 			}
 		}
 		
@@ -126,6 +144,8 @@ public class GamePanel extends JPanel {
 			Main.refreshPanels();
 			setCursor(DEFAULT_CUROSR);
 			Main.checkWin(Main.enemyBoard);
+			Main.userMove = false;
+			Main.bot.nextTurn();
 		}
 	}
 	
@@ -138,7 +158,7 @@ public class GamePanel extends JPanel {
 
 		@Override
 		public void mouseEntered(MouseEvent e) {
-			if (enemy) {
+			if (enemy && Main.userMove) {
 				FieldLabel label = (FieldLabel) e.getComponent();
 				if (label.getFieldType() == FieldType.EMPTY ||
 						label.getFieldType() == FieldType.SHIP) {
@@ -159,19 +179,21 @@ public class GamePanel extends JPanel {
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			FieldLabel label = (FieldLabel) e.getComponent();
-			handleClickEvent(label);
-			StringBuffer buffer = new StringBuffer();
-			buffer.append("User click on ");
-			buffer.append(label.getxPos());
-			buffer.append("x");
-			buffer.append(label.getyPos());
-			if (enemy) {
-				buffer.append(" enemy board");
-			} else {
-				buffer.append(" own board");
+			if (Main.userMove) {
+				FieldLabel label = (FieldLabel) e.getComponent();
+				handleClickEvent(label);
+				StringBuffer buffer = new StringBuffer();
+				buffer.append("User click on ");
+				buffer.append(label.getxPos());
+				buffer.append("x");
+				buffer.append(label.getyPos());
+				if (enemy) {
+					buffer.append(" enemy board");
+				} else {
+					buffer.append(" own board");
+				}
+				LOGGER.info(buffer.toString());
 			}
-			LOGGER.info(buffer.toString());
 		}
 		
 	}

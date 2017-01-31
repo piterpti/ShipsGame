@@ -1,14 +1,21 @@
 package model;
 
 import java.util.LinkedList;
+import java.util.logging.Logger;
 
 public class Board {
+	
+	private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
 	private FieldType[][] fields;
+	private Boolean[][] shooted;
 	private LinkedList<Ship> ships;
+	
+	boolean myBoard = false;
 	
 	public Board(LinkedList<Ship> aShips) {
 		fields = new FieldType[10][10];
+		shooted = new Boolean[10][10];
 		ships = aShips;
 		clear();
 		putShips();
@@ -16,6 +23,7 @@ public class Board {
 	
 	public Board() {
 		fields = new FieldType[10][10];
+		shooted = new Boolean[10][10];
 		clear();
 	}
 	
@@ -68,12 +76,14 @@ public class Board {
 						p.setDamged(true);
 						shipDestroyed = s.liveMinusAndItsDead();
 						fields[p.getX()][p.getY()] = FieldType.DAMAGED;
+						LOGGER.info("Ship hit on field: " + p.toString());
 					}
 				}
 				
 				if (shipDestroyed) {
 					for (Point p : s.getShipFields()) {
 						fields[p.getX()][p.getY()] = FieldType.DESTROYED;
+						LOGGER.info("Ship destroyed:" + s.toString());
 						LinkedList<Point> neihgbours = s.getNeighbourPoints();
 						for (Point shooted : neihgbours) {
 							FieldType neighbour = fields[shooted.getX()][shooted.getY()];
@@ -87,4 +97,14 @@ public class Board {
 		}
 		
 	}
+
+	public boolean isMyBoard() {
+		return myBoard;
+	}
+
+	public void setMyBoard(boolean myBoard) {
+		this.myBoard = myBoard;
+	}
+	
+	
 }
