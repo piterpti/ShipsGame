@@ -13,7 +13,19 @@ public class ShipGenerator {
 		LinkedList<Ship> ships = new LinkedList<>();
 		
 		LinkedList<Point> shipFields = new LinkedList<>();
-		shipFields.add(new Point(1, 1));
+		shipFields.add(new Point(0, 0));
+		ships.add(new Ship(shipFields));
+		
+		shipFields = new LinkedList<>();
+		shipFields.add(new Point(0, 9));
+		ships.add(new Ship(shipFields));
+		
+		shipFields = new LinkedList<>();
+		shipFields.add(new Point(9, 0));
+		ships.add(new Ship(shipFields));
+		
+		shipFields = new LinkedList<>();
+		shipFields.add(new Point(9, 9));
 		ships.add(new Ship(shipFields));
 		
 		shipFields = new LinkedList<>();

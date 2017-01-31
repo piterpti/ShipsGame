@@ -54,21 +54,34 @@ public class Board {
 	}
 	
 	public void checkIsShipHit(Point point) {
-		for (Ship s : ships) {
-			boolean shipDestroyed = false;
-			for (Point p : s.getShipFields()) {
-				if (p.equals(point)) {
-					p.setDamged(true);
-					shipDestroyed = s.liveMinusAndItsDead();
-					fields[p.getX()][p.getY()] = FieldType.DAMAGED;
-				}
-			}
+		FieldType type = fields[point.getX()][point.getY()];
+		if (type == FieldType.EMPTY) {
 			
-			if (shipDestroyed) {
+			fields[point.getX()][point.getY()] = FieldType.SHOOTED;
+			
+		} else if (type == FieldType.SHIP) {
+			
+			for (Ship s : ships) {
+				boolean shipDestroyed = false;
 				for (Point p : s.getShipFields()) {
-					fields[p.getX()][p.getY()] = FieldType.DESTROYED;
+					if (p.equals(point)) {
+						p.setDamged(true);
+						shipDestroyed = s.liveMinusAndItsDead();
+						fields[p.getX()][p.getY()] = FieldType.DAMAGED;
+					}
+				}
+				
+				if (shipDestroyed) {
+					for (Point p : s.getShipFields()) {
+						fields[p.getX()][p.getY()] = FieldType.DESTROYED;
+						LinkedList<Point> neihgbours = s.getNeighbourPoints();
+						for (Point shooted : neihgbours) {
+							fields[shooted.getX()][shooted.getY()] = FieldType.SHOOTED;
+						}
+					}
 				}
 			}
 		}
+		
 	}
 }

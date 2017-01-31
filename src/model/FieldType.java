@@ -5,5 +5,6 @@ public enum FieldType {
 	EMPTY,
 	SHOOTED,
 	DAMAGED,
-	DESTROYED
+	DESTROYED,
+	FRAME
 }

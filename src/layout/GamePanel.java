@@ -18,6 +18,9 @@ import model.Point;
 public class GamePanel extends JPanel {
 	
 	private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+	
+	private final static Cursor DEFAULT_CUROSR = new Cursor(Cursor.DEFAULT_CURSOR);
+	private final static Cursor HAND_CUROSR = new Cursor(Cursor.HAND_CURSOR);
 
 	private static final long serialVersionUID = 1L;
 	
@@ -34,12 +37,14 @@ public class GamePanel extends JPanel {
 	
 	private void addLabels() {
 		FieldLabel emptyLabel = new FieldLabel();
+		emptyLabel.setFieldType(FieldType.FRAME);
 		addLabel(emptyLabel);
 		
 		char letter = 'A';
 		for (int x = 0; x < 10; x++) {
 			FieldLabel letterLabel = new FieldLabel(letter + "");
 			addLabel(letterLabel);
+			letterLabel.setFieldType(FieldType.FRAME);
 			letter++;
 		}
 		
@@ -48,6 +53,7 @@ public class GamePanel extends JPanel {
 				FieldLabel label = null;
 				if (x == 0) {
 					label = new FieldLabel(y + 1 + "");
+					label.setFieldType(FieldType.FRAME);
 				} else {
 					label = new FieldLabel("", x-1, y);
 					label.addMouseListener(new FieldClick());
@@ -71,6 +77,9 @@ public class GamePanel extends JPanel {
 		FieldType[][] fieldsBoard = board.getFields();
 		
 		for (FieldLabel fl : fields) {
+			if (fl.getFieldType() == FieldType.FRAME) {
+				continue;
+			}
 			fl.setFieldType(fieldsBoard[fl.getxPos()][fl.getyPos()]);
 			
 			switch(fl.getFieldType()) {
@@ -88,6 +97,9 @@ public class GamePanel extends JPanel {
 					break;
 				case SHOOTED:
 					fl.setText(".");
+					break;
+				case FRAME:
+					// nothing do to
 					break;
 				default:
 					LOGGER.info("Unkonw action");
@@ -112,6 +124,7 @@ public class GamePanel extends JPanel {
 			Point clickedPoint = new Point(clicked.getxPos(), clicked.getyPos());
 			Main.enemyBoard.checkIsShipHit(clickedPoint);
 			Main.refreshPanels();
+			setCursor(DEFAULT_CUROSR);
 		}
 	}
 	
@@ -125,13 +138,17 @@ public class GamePanel extends JPanel {
 		@Override
 		public void mouseEntered(MouseEvent e) {
 			if (enemy) {
-				setCursor(new Cursor(Cursor.HAND_CURSOR));
+				FieldLabel label = (FieldLabel) e.getComponent();
+				if (label.getFieldType() == FieldType.EMPTY ||
+						label.getFieldType() == FieldType.SHIP) {
+					setCursor(HAND_CUROSR);
+				}
 			}
 		}
 
 		@Override
 		public void mouseExited(MouseEvent e) {
-			setCursor(new Cursor(Cursor.DEFAULT_CURSOR));
+			setCursor(DEFAULT_CUROSR);
 		}
 
 		@Override
