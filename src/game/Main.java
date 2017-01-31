@@ -5,12 +5,14 @@ import java.io.IOException;
 import javax.swing.GroupLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 
 import layout.GamePanel;
 import logger.MyLogger;
 import model.Board;
+import model.FieldType;
 import tools.ShipGenerator;
 
 /**
@@ -111,7 +113,22 @@ public class Main extends JFrame {
 	public static void refreshPanels() {
 		myPanel.refresh(myBoard);
 		enemyPanel.refresh(enemyBoard);
+	}
+	
+	public static boolean checkWin(Board board) {
+		FieldType[][] fields = board.getFields();
 		
+		for (int y = 0; y < 10; y++) {
+			for (int x = 0; x < 10; x++) {
+				if (fields[x][y] == FieldType.SHIP) {
+					return false;
+				}
+			}
+		}
+		
+		JOptionPane.showMessageDialog(null, "You win!", "Game over", JOptionPane.OK_OPTION);
+		System.exit(0);
+		return true;
 	}
 	
 	

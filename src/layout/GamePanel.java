@@ -125,6 +125,7 @@ public class GamePanel extends JPanel {
 			Main.enemyBoard.checkIsShipHit(clickedPoint);
 			Main.refreshPanels();
 			setCursor(DEFAULT_CUROSR);
+			Main.checkWin(Main.enemyBoard);
 		}
 	}
 	

@@ -76,7 +76,10 @@ public class Board {
 						fields[p.getX()][p.getY()] = FieldType.DESTROYED;
 						LinkedList<Point> neihgbours = s.getNeighbourPoints();
 						for (Point shooted : neihgbours) {
-							fields[shooted.getX()][shooted.getY()] = FieldType.SHOOTED;
+							FieldType neighbour = fields[shooted.getX()][shooted.getY()];
+							if (neighbour == FieldType.EMPTY) {
+								fields[shooted.getX()][shooted.getY()] = FieldType.SHOOTED;
+							}
 						}
 					}
 				}
