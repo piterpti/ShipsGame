@@ -133,8 +133,7 @@ public class Main extends JFrame {
 		ShipGenerator.generateShips(myBoard);
 		
 		bot = new Bot();
-		enemyBoard = Bot.myBoard;
-		bot.nextTurn();
+		enemyBoard = Bot.myBoard;		
 		
 		refreshPanels();
 	}

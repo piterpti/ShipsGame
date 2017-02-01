@@ -141,11 +141,11 @@ public class GamePanel extends JPanel {
 		if (enemy) {
 			Point clickedPoint = new Point(clicked.getxPos(), clicked.getyPos());
 			Main.enemyBoard.checkIsShipHit(clickedPoint);
-			Main.refreshPanels();
 			setCursor(DEFAULT_CUROSR);
 			Main.checkWin(Main.enemyBoard);
 			Main.userMove = false;
 			Main.bot.nextTurn();
+			Main.refreshPanels();
 		}
 	}
 	
