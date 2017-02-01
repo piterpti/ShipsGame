@@ -1,6 +1,7 @@
 package game;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import javax.swing.GroupLayout;
 import javax.swing.JFrame;
@@ -25,6 +26,8 @@ import tools.ShipGenerator;
 public class Main extends JFrame {
 	
 	private static final long serialVersionUID = 1L;
+	
+	private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
 	public static Board myBoard;
 	public static Board enemyBoard;
@@ -110,20 +113,43 @@ public class Main extends JFrame {
 		enemyPanel.refresh(enemyBoard);
 	}
 	
-	public static boolean checkWin(Board board) {
-		FieldType[][] fields = board.getFields();
+	public static void checkWin() {
 		
-		for (int y = 0; y < 10; y++) {
+		FieldType[][] fields = myBoard.getFields();
+		boolean lose = true;
+		
+		out1: for (int y = 0; y < 10; y++) {
 			for (int x = 0; x < 10; x++) {
 				if (fields[x][y] == FieldType.SHIP) {
-					return false;
+					lose = false;
+					break out1;
 				}
 			}
 		}
 		
-		JOptionPane.showMessageDialog(null, "You win!", "Game over", JOptionPane.OK_OPTION);
-		System.exit(0);
-		return true;
+		if (lose) {
+			JOptionPane.showMessageDialog(null, "You lose!", "Game over", JOptionPane.OK_OPTION);
+			LOGGER.info("Player 1 lose the game!");
+			System.exit(0);
+		}
+		
+		fields = Bot.myBoard.getFields();
+		lose = true;
+		
+		out2: for (int y = 0; y < 10; y++) {
+			for (int x = 0; x < 10; x++) {
+				if (fields[x][y] == FieldType.SHIP) {
+					lose = false;
+					break out2;
+				}
+			}
+		}
+		
+		if (lose) {
+			JOptionPane.showMessageDialog(null, "You win!", "Game over", JOptionPane.OK_OPTION);
+			LOGGER.info("Player 1 win the game!");
+			System.exit(0);
+		}	
 	}
 	
 	private void startGameWithComputer() {

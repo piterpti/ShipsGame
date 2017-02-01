@@ -8,6 +8,7 @@ import game.Main;
 import model.Board;
 import model.FieldType;
 import model.Point;
+import model.Ship;
 import tools.ShipGenerator;
 
 public class Bot {
@@ -25,9 +26,10 @@ public class Bot {
 	
 	public void nextTurn() {
 		
-		LOGGER.info("BOT TURN..");
+		LOGGER.info("Computer player turn..");
 		shot();
 		Main.userMove = true;
+		Main.checkWin();
 		
 	}
 
@@ -52,27 +54,37 @@ public class Bot {
 		LinkedList<Point> damagedPoints = getDamagedShips();
 		LinkedList<Point> pointsToAttack = new LinkedList<>();
 		
-		if (damagedPoints.size() > 0) {
+		Ship dmgShip = getDamagedShip();
+		
+		if (dmgShip != null) {
+			pointsToAttack.addAll(dmgShip.getShipSuspect(enemmyBoard));
+		}
+		else if (damagedPoints.size() > 0) {
 			pointsToAttack.addAll(getAllAvialbleShots(enemmyBoard, damagedPoints));
 		} else {
 			pointsToAttack.addAll(getAllAvialbleShots());
 		}
 		
-		Random random = new Random();
-		
-		int shipNumber = random.nextInt(pointsToAttack.size());
-		int counter = 0;
-		
-		Point toAttack = null;
-		for (Point p : pointsToAttack) {
-			if (counter == shipNumber) {
-				toAttack = p;
-				break;
+		if (pointsToAttack.size() > 0) {
+			Random random = new Random();
+			
+			int shipNumber = random.nextInt(pointsToAttack.size());
+			int counter = 0;
+			
+			Point toAttack = null;
+			for (Point p : pointsToAttack) {
+				if (counter == shipNumber) {
+					toAttack = p;
+					break;
+				}
+				counter++;
 			}
-			counter++;
+			enemmyBoard.checkIsShipHit(toAttack);
+			LOGGER.info("Computer attak point " + toAttack.toString());
+			
+		} else {
+			LOGGER.warning("Error toAttack point is null");
 		}
-		
-		enemmyBoard.checkIsShipHit(toAttack);
 	}
 	
 	private LinkedList<Point> getDamagedShips() {
@@ -113,6 +125,17 @@ public class Bot {
 			}
 		}
 		return result;
+	}
+	
+	private Ship getDamagedShip() {
+		LinkedList<Ship> tmpShips = enemmyBoard.getShips();
+		
+		for (Ship s : tmpShips) {
+			if (s.twoHits()) {
+				return s;
+			}
+		}
+		return null;
 	}
 	
 	
