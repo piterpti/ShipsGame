@@ -1,8 +1,4 @@
-/components/
-/game/
-/layout/
-/logger/
-/model/
-/tools/
-/bot.class
 /bot/
+/communiaction/
+/layout/
+/game/

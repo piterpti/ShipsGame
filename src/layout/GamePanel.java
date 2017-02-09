@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 import javax.swing.JPanel;
 
 import components.FieldLabel;
-import game.Main;
+import game.GameFrame;
 import model.Board;
 import model.FieldType;
 import model.Point;
@@ -140,12 +140,12 @@ public class GamePanel extends JPanel {
 	private void handleClickEvent(FieldLabel clicked) {
 		if (enemy) {
 			Point clickedPoint = new Point(clicked.getxPos(), clicked.getyPos());
-			Main.enemyBoard.checkIsShipHit(clickedPoint);
+			GameFrame.enemyBoard.checkIsShipHit(clickedPoint);
 			setCursor(DEFAULT_CUROSR);
-			Main.checkWin();
-			Main.userMove = false;
-			Main.bot.nextTurn();
-			Main.refreshPanels();
+			GameFrame.checkWin();
+			GameFrame.userMove = false;
+			GameFrame.bot.nextTurn();
+			GameFrame.refreshPanels();
 		}
 	}
 	
@@ -158,7 +158,7 @@ public class GamePanel extends JPanel {
 
 		@Override
 		public void mouseEntered(MouseEvent e) {
-			if (enemy && Main.userMove) {
+			if (enemy && GameFrame.userMove) {
 				FieldLabel label = (FieldLabel) e.getComponent();
 				if (label.getFieldType() == FieldType.EMPTY ||
 						label.getFieldType() == FieldType.SHIP) {
@@ -179,7 +179,7 @@ public class GamePanel extends JPanel {
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			if (Main.userMove) {
+			if (GameFrame.userMove) {
 				FieldLabel label = (FieldLabel) e.getComponent();
 				handleClickEvent(label);
 				StringBuffer buffer = new StringBuffer();

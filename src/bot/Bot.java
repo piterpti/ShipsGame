@@ -4,7 +4,7 @@ import java.util.LinkedList;
 import java.util.Random;
 import java.util.logging.Logger;
 
-import game.Main;
+import game.GameFrame;
 import model.Board;
 import model.FieldType;
 import model.Point;
@@ -21,15 +21,15 @@ public class Bot {
 	public Bot() {
 		myBoard = new Board();
 		ShipGenerator.generateShips(myBoard);
-		enemmyBoard = Main.myBoard;
+		enemmyBoard = GameFrame.myBoard;
 	}
 	
 	public void nextTurn() {
 		
 		LOGGER.info("Computer player turn..");
 		shot();
-		Main.userMove = true;
-		Main.checkWin();
+		GameFrame.userMove = true;
+		GameFrame.checkWin();
 		
 	}
 
