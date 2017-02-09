@@ -1,18 +1,15 @@
 package game;
 
-import java.io.IOException;
-import java.util.logging.Logger;
+import static constants.Constants.LOGGER;
 
 import javax.swing.GroupLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
-import javax.swing.SwingUtilities;
 
 import bot.Bot;
 import layout.GamePanel;
-import logger.MyLogger;
 import model.Board;
 import model.FieldType;
 import tools.ShipGenerator;
@@ -25,8 +22,6 @@ import tools.ShipGenerator;
 public class GameFrame extends JFrame {
 	
 	private static final long serialVersionUID = 1L;
-	
-	private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
 	public static Board myBoard;
 	public static Board enemyBoard;
@@ -38,19 +33,7 @@ public class GameFrame extends JFrame {
 	private static GamePanel enemyPanel;
 	
 	private JLabel movementLabel = new JLabel("Ruch");
-	
-	static {
-		try {
-			MyLogger.setup();
-		} catch (IOException e) {
-			e.printStackTrace();
-		}
-	}
-	
-	public enum GameType {
-		USER_VS_COMPUTER,
-		USER_VS_USER
-	}
+
 	
 	public GameFrame() {
 		this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -71,7 +54,7 @@ public class GameFrame extends JFrame {
 		columnFirst.addComponent(movementLabel, GroupLayout.Alignment.CENTER);
 		leftToRight.addGroup(columnFirst);
 		leftToRight.addComponent(enemyPanel);
-		
+			
 		GroupLayout.SequentialGroup topToBottom = layoutt.createSequentialGroup();
 		GroupLayout.ParallelGroup rowTop = layoutt.createParallelGroup();
 		rowTop.addComponent(myPanel);
@@ -90,6 +73,7 @@ public class GameFrame extends JFrame {
 		this.setVisible(true);
 		
 		startGameWithComputer();
+		
 	}
 	
 	private void initComponents() {

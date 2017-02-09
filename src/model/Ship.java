@@ -53,7 +53,6 @@ public class Ship {
 	}
 	
 	public LinkedList<Point> getShipSuspect(Board onBoard) {
-		Point result = null;
 		LinkedList<Point> damagedFields = getDamagedFields(onBoard);
 						
 		Point first = damagedFields.getFirst();

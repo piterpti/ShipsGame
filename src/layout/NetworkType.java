@@ -7,7 +7,9 @@ import java.awt.event.ActionListener;
 import javax.swing.JFrame;
 
 import components.MenuButton;
+import game.Game;
 import game.Main;
+import game.Main.GameType;
 
 public class NetworkType extends JFrame {
 
@@ -37,6 +39,17 @@ public class NetworkType extends JFrame {
 	}
 
 	private void addListeners() {
+		
+		joinBtn.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				Main.gameType = GameType.CLIENT;
+				new Game().setVisible(true);
+				dispose();
+			}
+		});
+		
 		becomeHostBtn.addActionListener(new ActionListener() {
 			
 			@Override

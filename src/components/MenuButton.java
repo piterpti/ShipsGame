@@ -18,8 +18,6 @@ public class MenuButton extends JButton {
 		setPreferredSize(BTN_SIZE);
 		setSize(BTN_SIZE);
 		setFont(new Font(getFont().getFontName(), getFont().getStyle(), 24));
-		
-		System.out.println(getFont().getFontName() + " " + getFont().getStyle());
 	}
 	
 }

@@ -1,27 +1,20 @@
 package bot;
 
+import static constants.Constants.LOGGER;
+
 import java.util.LinkedList;
 import java.util.Random;
-import java.util.logging.Logger;
 
 import game.GameFrame;
 import model.Board;
 import model.FieldType;
 import model.Point;
 import model.Ship;
-import tools.ShipGenerator;
 
-public class Bot {
-	
-	private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
-	
-	public static Board myBoard;
-	public static Board enemmyBoard;
-	
+public class Bot extends Enemy{
+
 	public Bot() {
-		myBoard = new Board();
-		ShipGenerator.generateShips(myBoard);
-		enemmyBoard = GameFrame.myBoard;
+		super();
 	}
 	
 	public void nextTurn() {
@@ -32,6 +25,8 @@ public class Bot {
 		GameFrame.checkWin();
 		
 	}
+	
+
 
 	public static Board getMyBoard() {
 		return myBoard;
