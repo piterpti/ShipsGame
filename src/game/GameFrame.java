@@ -137,7 +137,7 @@ public class GameFrame extends JFrame {
 		if (lose) {
 			JOptionPane.showMessageDialog(null, "You win!", "Game over", JOptionPane.OK_OPTION);
 			LOGGER.info("Player 1 win the game!");
-			System.exit(0);
+			Main.backToMenu();
 		}	
 	}
 	

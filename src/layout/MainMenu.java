@@ -1,24 +1,24 @@
 package layout; 
 
-import java.awt.Dimension;
-import java.awt.Font;
 import java.awt.GridLayout;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.util.logging.Logger;
 
-import javax.swing.JButton;
 import javax.swing.JFrame;
 
-import game.GameFrame;
+import components.MenuButton;
 import game.Main;
 
 public class MainMenu extends JFrame {
 	
-	private final static Dimension BTN_SIZE = new Dimension(350, 100);
+	private static final long serialVersionUID = 1L;
 	
-	private JButton newGameBotBtn;
-	private JButton newGameNetworkBtn;
-	private JButton exitBtn;
+	private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
+	
+	private MenuButton newGameBotBtn;
+	private MenuButton newGameNetworkBtn;
+	private MenuButton exitBtn;
 	
 	
 	public MainMenu() {
@@ -27,13 +27,9 @@ public class MainMenu extends JFrame {
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setLayout(new GridLayout(3, 1));
 		
-		newGameBotBtn = new JButton("New game");
-		newGameNetworkBtn = new JButton("Network game");
-		exitBtn = new JButton("Exit");
-		
-		btnConfig(newGameBotBtn);
-		btnConfig(newGameNetworkBtn);
-		btnConfig(exitBtn);
+		newGameBotBtn = new MenuButton("New game");
+		newGameNetworkBtn = new MenuButton("Network game");
+		exitBtn = new MenuButton("Exit");
 		
 		addListeners();
 		
@@ -44,24 +40,23 @@ public class MainMenu extends JFrame {
 		pack();
 	}
 	
-	private void btnConfig(JButton btn) {
-		btn.setMaximumSize(BTN_SIZE);
-		btn.setMinimumSize(BTN_SIZE);
-		btn.setPreferredSize(BTN_SIZE);
-		btn.setSize(BTN_SIZE);
-		btn.setFont(new Font(btn.getFont().getFontName(), btn.getFont().getStyle(), 24));
-		
-		
-	}
-
-
 	private void addListeners() {
 		
 		newGameBotBtn.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent e) {
+				LOGGER.info("Starting game with computer");
 				startGame();
+			}
+		});
+		
+		newGameNetworkBtn.addActionListener(new ActionListener() {
+			
+			@Override
+			public void actionPerformed(ActionEvent e) {
+				LOGGER.info("Starting network game");
+				startNetworkGame();
 			}
 		});
 		
@@ -69,11 +64,16 @@ public class MainMenu extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				LOGGER.info("Exit application");
 				System.exit(0);
 			}
 		});
 	}
 	
+	private static void startNetworkGame() {
+		Main.startNetworkGame();
+	}
+
 	private static void startGame() {
 		Main.startGame();
 	}

@@ -3,6 +3,7 @@ package game;
 import javax.swing.SwingUtilities;
 
 import layout.MainMenu;
+import layout.NetworkType;
 
 /*
  * Main applcation class
@@ -12,6 +13,7 @@ public class Main {
 	
 	private static GameFrame gameFrame;
 	private static MainMenu mainMenu;
+	private static NetworkType networkType;
 	
 	public static void main(String[] args) {
 		
@@ -32,9 +34,9 @@ public class Main {
 			gameFrame = null;
 		}
 		
+		mainMenu.setVisible(false);
 		gameFrame = new GameFrame();
 		gameFrame.setVisible(true);
-		mainMenu.setVisible(false);
 	}
 	
 	public static void backToMenu() {
@@ -43,7 +45,23 @@ public class Main {
 			gameFrame = null;
 		}
 		
+		if (networkType != null) {
+			networkType.dispose();
+			networkType = null;
+		}
+		
 		mainMenu.setVisible(true);
+	}
+	
+	public static void startNetworkGame() {
+		if (networkType != null) {
+			networkType.dispose();
+			networkType = null;
+		}
+		
+		mainMenu.setVisible(false);
+		networkType = new NetworkType();
+		networkType.setVisible(true);
 	}
 	
 
