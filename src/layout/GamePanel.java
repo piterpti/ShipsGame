@@ -10,6 +10,7 @@ import java.util.logging.Logger;
 import javax.swing.JPanel;
 
 import components.FieldLabel;
+import game.Game;
 import game.GameFrame;
 import model.Board;
 import model.FieldType;
@@ -138,15 +139,18 @@ public class GamePanel extends JPanel {
 	}
 	
 	private void handleClickEvent(FieldLabel clicked) {
-		if (enemy) {
-			Point clickedPoint = new Point(clicked.getxPos(), clicked.getyPos());
-			GameFrame.enemyBoard.checkIsShipHit(clickedPoint);
-			setCursor(DEFAULT_CUROSR);
-			GameFrame.checkWin();
-			GameFrame.userMove = false;
-			GameFrame.bot.nextTurn();
-			GameFrame.refreshPanels();
-		}
+//		if (enemy) {
+//			Point clickedPoint = new Point(clicked.getxPos(), clicked.getyPos());
+//			GameFrame.enemyBoard.checkIsShipHit(clickedPoint);
+//			setCursor(DEFAULT_CUROSR);
+//			GameFrame.checkWin();
+//			GameFrame.bot.nextTurn();
+//			GameFrame.refreshPanels();
+//		}
+		
+		Point clickedPoint = new Point(clicked.getxPos(), clicked.getyPos());
+		
+		Game.move(clickedPoint);
 	}
 	
 	class FieldClick implements MouseListener {
@@ -158,7 +162,7 @@ public class GamePanel extends JPanel {
 
 		@Override
 		public void mouseEntered(MouseEvent e) {
-			if (enemy && GameFrame.userMove) {
+			if (enemy) {
 				FieldLabel label = (FieldLabel) e.getComponent();
 				if (label.getFieldType() == FieldType.EMPTY ||
 						label.getFieldType() == FieldType.SHIP) {
@@ -179,22 +183,23 @@ public class GamePanel extends JPanel {
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			if (GameFrame.userMove) {
-				FieldLabel label = (FieldLabel) e.getComponent();
-				handleClickEvent(label);
-				StringBuffer buffer = new StringBuffer();
-				buffer.append("User click on ");
-				buffer.append(label.getxPos());
-				buffer.append("x");
-				buffer.append(label.getyPos());
-				if (enemy) {
-					buffer.append(" enemy board");
-				} else {
-					buffer.append(" own board");
-				}
-				LOGGER.info(buffer.toString());
-			}
+			FieldLabel label = (FieldLabel) e.getComponent();
+			handleClickEvent(label);
+			logClick(label);
 		}
-		
+	}
+	
+	private void logClick(FieldLabel label) {
+		StringBuffer buffer = new StringBuffer();
+		buffer.append("User click on ");
+		buffer.append(label.getxPos());
+		buffer.append("x");
+		buffer.append(label.getyPos());
+		if (enemy) {
+			buffer.append(" enemy board");
+		} else {
+			buffer.append(" own board");
+		}
+		LOGGER.info(buffer.toString());
 	}
 }

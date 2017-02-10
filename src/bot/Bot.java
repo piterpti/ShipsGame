@@ -21,8 +21,8 @@ public class Bot extends Enemy{
 		
 		LOGGER.info("Computer player turn..");
 		shot();
-		GameFrame.userMove = true;
-		GameFrame.checkWin();
+//		GameFrame.userMove = true;
+//		GameFrame.checkWin();
 		
 	}
 	

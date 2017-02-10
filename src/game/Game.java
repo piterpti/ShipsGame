@@ -5,9 +5,11 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 
+import communiaction.Client;
 import communiaction.Host;
 import layout.GamePanel;
 import model.Board;
+import model.Point;
 
 public class Game extends JFrame {
 
@@ -19,7 +21,8 @@ public class Game extends JFrame {
 	private static GamePanel myPanel;
 	private static GamePanel enemyPanel;
 	
-	private Host host;
+	private static Host host;
+	private static Client client;
 	
 	private JLabel movementLabel = new JLabel("Ruch");
 	
@@ -82,28 +85,30 @@ public class Game extends JFrame {
 		host = new Host(Main.PORT);
 		host.start();
 		
-		try {
-			Thread.sleep(5000);
-		} catch (Exception e) {
-			
-		}
 		
-		host.setLine("abc");
+	}
+	
+	public static void move(Point point) {
+		switch (Main.gameType) {
+		case HOST:
+			host.sendRequest(point.toString());
+			break;
+		case CLIENT:
+			client.sendRequest(point.toString());
+			break;
+		default:
+			break;
+		}
 	}
 	
 	private void initClient() {
-		Client client = new Client();
+		client = new Client();
 		client.start();
 		
-		try {
-			Thread.sleep(3000);
-			
-			client.setLine("siema mordo");			
-			
-		} catch (InterruptedException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
-		}
+		
+		
+		
+		
 	}
 	
 }

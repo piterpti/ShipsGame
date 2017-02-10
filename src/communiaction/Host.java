@@ -53,7 +53,7 @@ public class Host extends Thread {
 				LOGGER.info("Waiting for client");
 				socket = hostServer.accept();
 				LOGGER.info("Client accepted: " + socket.toString());
-				printWriterOut = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()));
+				printWriterOut = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
 
 				
 				streamIn = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
@@ -61,15 +61,6 @@ public class Host extends Thread {
 				while (!endGame) {
 					line = streamIn.readUTF();
 					LOGGER.info("Message from client: " + line);
-					if (line.equals("END")) {
-						endGame = true;
-					}
-					
-					line = "xd";
-					LOGGER.info("Sending:" + line);
-					printWriterOut.write(line);
-					printWriterOut.flush();
-					
 				}
 				
 				close();
@@ -88,14 +79,14 @@ public class Host extends Thread {
 		if (streamIn != null) {
 			streamIn.close();
 		}
+		
+		if (printWriterOut != null) {
+			printWriterOut.close();
+		}
 	}
 	
-	public void setLine(String aLine) {
-//		line = aLine;
-//		synchronized (lock) {
-//			lock.notifyAll();
-//		}
-		
+	public void sendRequest(String utfLine) {
+		printWriterOut.println(utfLine);
 	}
 	
 	public boolean isEndGame() {

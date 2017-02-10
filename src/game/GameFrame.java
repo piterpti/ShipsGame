@@ -27,7 +27,6 @@ public class GameFrame extends JFrame {
 	public static Board enemyBoard;
 	
 	public static Bot bot;
-	public static boolean userMove = true;
 	
 	private static GamePanel myPanel;
 	private static GamePanel enemyPanel;

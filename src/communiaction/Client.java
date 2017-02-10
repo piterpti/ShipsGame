@@ -1,4 +1,4 @@
-package game;
+package communiaction;
 
 import static constants.Constants.LOGGER;
 
@@ -8,6 +8,9 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.Socket;
 
+import constants.Constants;
+import game.Main;
+
 public class Client extends Thread {
 
 	private Socket socket;
@@ -15,6 +18,8 @@ public class Client extends Thread {
 	
 	private String line;
 	private Object lock = new Object();
+	
+	private boolean gameEnd = false;
 	
 	private BufferedReader in = null;
 	
@@ -40,15 +45,24 @@ public class Client extends Thread {
 		}
 	}
 	
-	private String waitForClick() {
+	
+	public void sendRequest(String utfLine) {
 		try {
-			synchronized (lock) {
-				lock.wait();
-			}
-		} catch (InterruptedException e) {
-			LOGGER.warning("Problem with thread interrupting" + e.toString());
+			streamOut.writeUTF(utfLine);
+			streamOut.flush();
+		} catch (IOException e) {
+			LOGGER.warning("Error when sending request: " + e.toString());
 		}
-		return line;
+	}
+	
+	private void closeConn() {
+		if (in != null) {
+			try {
+				in.close();
+			} catch (IOException e) {
+				Constants.LOGGER.warning("Problem with closing socket");
+			}
+		}
 	}
 	
 	@Override
@@ -60,18 +74,25 @@ public class Client extends Thread {
 			line = "";
 			
 			while (!line.equals("END")) {
-				line = waitForClick();
-				streamOut.writeUTF(line);
-				streamOut.flush();
-				
 				line = in.readLine();
 				LOGGER.info("Recived from server: " + line);
-				
 			}
+			synchronized (lock) {
+				gameEnd = false;
+			}
+			closeConn();
 		}
 		catch (Exception e) {
 			LOGGER.warning("Problem with connection on port" + Main.PORT + ": " + e.toString());
 		}
 	}
+	
+	public boolean isGameEnd() {
+		synchronized (lock) {
+			return gameEnd;
+		}
+	}
+	
+	
 	
 }
