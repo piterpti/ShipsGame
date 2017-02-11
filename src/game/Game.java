@@ -8,6 +8,7 @@ import javax.swing.JPanel;
 import communiaction.Client;
 import communiaction.Host;
 import communiaction.Message;
+import communiaction.Message.TypeMsg;
 import layout.GamePanel;
 import model.Board;
 import tools.ShipGenerator;
@@ -34,7 +35,7 @@ public class Game extends JFrame {
 	
 	public static Move move = Move.PLAYER;
 	
-	private JLabel movementLabel = new JLabel("Ruch");
+	private static JLabel movementLabel = new JLabel("Ruch");
 	
 	public Game() {
 		initComponents();
@@ -55,11 +56,14 @@ public class Game extends JFrame {
 		}
 		
 		ENEMY_BOARD = new Board();
-		ShipGenerator.generateShips(ENEMY_BOARD);
+		ENEMY_BOARD.setMyBoard(false);
+		
 		
 		MY_BOARD = new Board();
+		MY_BOARD.setMyBoard(true);
 		ShipGenerator.generateShips(MY_BOARD);
 
+		refreshPanels();
 	}
 
 	private void lossPlayer() {
@@ -111,9 +115,11 @@ public class Game extends JFrame {
 		switch (Main.gameType) {
 		case HOST:
 			host.sendMessage(msg);
+			movementLabel.setText("HOST");
 			break;
 		case CLIENT:
 			client.sendMessage(msg);
+			movementLabel.setText("CLIENT");
 			break;
 		default:
 			break;
@@ -131,8 +137,37 @@ public class Game extends JFrame {
 	}
 	
 	public static void refreshPanels() {
-		myPanel.refresh(MY_BOARD);
-		enemyPanel.refresh(ENEMY_BOARD);
+		synchronized (lock) {
+			myPanel.refresh(MY_BOARD);
+			enemyPanel.refresh(ENEMY_BOARD);
+		}
+	}
+	
+	public static void hostRecMsg() {
+		
+		Message recMsg = host.getMessage();
+		
+		if (recMsg.getType() == TypeMsg.BOARD) {
+			
+			ENEMY_BOARD = recMsg.getBoard();
+			ENEMY_BOARD.setMyBoard(false);
+			
+			refreshPanels();
+			
+		}
+	}
+	
+	public static void clientRecMsg() {
+		Message recMsg = client.getMessage();
+		if (recMsg.getType() == TypeMsg.ATTACK) {
+			
+			MY_BOARD.checkIsShipHit(recMsg.getPoint());
+			Message sendMsg = new Message(recMsg.getId() + 1, null, "board", TypeMsg.BOARD);
+			sendMsg.setBoard(MY_BOARD);
+			client.sendMessage(sendMsg);
+		}
+		
+		refreshPanels();
 	}
 
 	

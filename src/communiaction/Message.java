@@ -2,26 +2,28 @@ package communiaction;
 
 import java.io.Serializable;
 
+import model.Board;
 import model.Point;
 
 public class Message implements Serializable {
 	
 	private static final long serialVersionUID = 1L;
 
-	public enum Type {
-		WELCOME, ATTACK, END
+	public enum TypeMsg {
+		WELCOME, ATTACK, END, BOARD
 	}
 	
 	private Point point;
 	private String text;
-	private Type type;
+	private TypeMsg type;
 	private int id;
+	private Board board;
 	
-	public Message(Type aType) {
+	public Message(TypeMsg aType) {
 		type = aType;
 	}
 	
-	public Message(int id,Point point, String text, Type type) {
+	public Message(int id,Point point, String text, TypeMsg type) {
 		super();
 		this.point = point;
 		this.text = text;
@@ -45,14 +47,32 @@ public class Message implements Serializable {
 		this.text = text;
 	}
 
-	public Type getType() {
+	public TypeMsg getType() {
 		return type;
 	}
 
-	public void setType(Type type) {
+	public void setType(TypeMsg type) {
 		this.type = type;
 	}
 	
+	
+	
+	public int getId() {
+		return id;
+	}
+
+	public void setId(int id) {
+		this.id = id;
+	}
+
+	public Board getBoard() {
+		return board;
+	}
+
+	public void setBoard(Board board) {
+		this.board = board;
+	}
+
 	@Override
 	public String toString() {
 		StringBuffer bfr = new StringBuffer();
@@ -66,6 +86,9 @@ public class Message implements Serializable {
 		}
 		if (point != null) {
 			bfr.append(point.toString());
+		}
+		if (board != null) {
+			bfr.append("BOARD");
 		}
 		return bfr.toString();
 	}

@@ -8,6 +8,8 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import game.Game;
+
 public class Host extends Thread {
 	
 	private final int port;
@@ -18,6 +20,8 @@ public class Host extends Thread {
 	private ObjectOutputStream streamOut;
 	
 	private boolean endGame = false;
+	
+	private Object lock = new Object();
 	
 	private Message receivedMsg = null;
 	
@@ -56,10 +60,14 @@ public class Host extends Thread {
 				
 				
 				while (!endGame) {
-					receivedMsg = (Message) streamIn.readObject();
-					LOGGER.info("Message from client: " + receivedMsg.toString());
+					synchronized (lock) {
+						receivedMsg = (Message) streamIn.readObject();
+						LOGGER.info("Message from client: " + receivedMsg.toString());
+						receivedMsg = null;
+					}
+					Game.hostRecMsg();
+					receivedMsg = null;
 				}
-				
 				
 				close();
 				
@@ -97,7 +105,9 @@ public class Host extends Thread {
 	}
 	
 	public Message getMessage() {
-		return receivedMsg;
+		synchronized (lock) {
+			return receivedMsg;
+		}
 	}
 	
 	public boolean isEndGame() {

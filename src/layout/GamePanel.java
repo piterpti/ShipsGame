@@ -10,7 +10,7 @@ import java.util.logging.Logger;
 import javax.swing.JPanel;
 
 import communiaction.Message;
-import communiaction.Message.Type;
+import communiaction.Message.TypeMsg;
 import components.FieldLabel;
 import game.Game;
 import game.Game.Move;
@@ -141,31 +141,13 @@ public class GamePanel extends JPanel {
 	}
 	
 	public void handleClickEvent(FieldLabel clicked) {
-//		if (enemy) {
-//			Point clickedPoint = new Point(clicked.getxPos(), clicked.getyPos());
-//			GameFrame.enemyBoard.checkIsShipHit(clickedPoint);
-//			setCursor(DEFAULT_CUROSR);
-//			GameFrame.checkWin();
-//			GameFrame.bot.nextTurn();
-//			GameFrame.refreshPanels();
-//		}
-		
+
 		Point clickedPoint = new Point(clicked.getxPos(), clicked.getyPos());
 		
-		Message msg = new Message(1, clickedPoint, "this is text..", Type.ATTACK);
-		
-		Game.move(msg);
-		
-	}
-	
-	public void enemyMove(String attack) {
-		
-		
-		
-		Game.MY_BOARD.checkIsShipHit(null);
-		Game.refreshPanels();
-		
-		
+		if (Game.move == Move.PLAYER) {
+			Message msg = new Message(1, clickedPoint, "ATTACK", TypeMsg.ATTACK);
+			Game.move(msg);
+		}
 	}
 	
 	class FieldClick implements MouseListener {

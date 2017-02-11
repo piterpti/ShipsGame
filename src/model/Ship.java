@@ -1,10 +1,13 @@
 package model;
 
+import java.io.Serializable;
 import java.util.HashSet;
 import java.util.LinkedList;
 
-public class Ship {
+public class Ship implements Serializable {
 
+	private static final long serialVersionUID = 1L;
+	
 	private LinkedList<Point> shipFields;
 	private int size;
 	private int hits = 0;

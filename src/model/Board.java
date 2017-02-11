@@ -1,10 +1,13 @@
 package model;
 
+import java.io.Serializable;
 import java.util.LinkedList;
 import java.util.logging.Logger;
 
-public class Board {
+public class Board implements Serializable{
 	
+	private static final long serialVersionUID = 1L;
+
 	private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 
 	private FieldType[][] fields;
@@ -60,6 +63,7 @@ public class Board {
 	
 	public void checkIsShipHit(Point point) {
 		FieldType type = fields[point.getX()][point.getY()];
+		
 		if (type == FieldType.EMPTY) {
 			
 			fields[point.getX()][point.getY()] = FieldType.SHOOTED;
@@ -92,7 +96,6 @@ public class Board {
 				}
 			}
 		}
-		
 	}
 
 	public boolean isMyBoard() {

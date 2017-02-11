@@ -7,6 +7,7 @@ import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
 
+import game.Game;
 import game.Main;
 
 public class Client extends Thread {
@@ -14,6 +15,8 @@ public class Client extends Thread {
 	private Socket socket;
 	private ObjectOutputStream streamOut;
 	private ObjectInputStream streamIn;
+	
+	private Object lock = new Object();
 	
 	private Message receivedMsg = null;
 	
@@ -52,8 +55,13 @@ public class Client extends Thread {
 			boolean gameEnd = false;
 			
 			while (!gameEnd) {
-				receivedMsg = (Message) streamIn.readObject();
-				LOGGER.info("Recived message from host: " + receivedMsg.toString());
+				synchronized (lock) {
+					receivedMsg = (Message) streamIn.readObject();
+					LOGGER.info("Recived message from host: " + receivedMsg.toString());
+					
+				}
+				Game.clientRecMsg();
+				receivedMsg = null;
 			}
 			
 			closeConn();
@@ -73,6 +81,8 @@ public class Client extends Thread {
 	}
 	
 	public Message getMessage() {
-		return receivedMsg;
+		synchronized (lock) {
+			return receivedMsg;
+		}
 	}
 }
