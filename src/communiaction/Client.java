@@ -71,7 +71,7 @@ public class Client extends Thread {
 		try {
 			startConn();
 			
-			line = "";
+			line = "PREV";
 			
 			while (!line.equals("END")) {
 				line = in.readLine();
@@ -91,6 +91,10 @@ public class Client extends Thread {
 		synchronized (lock) {
 			return gameEnd;
 		}
+	}
+	
+	public String getLine() {
+		return line;
 	}
 	
 	

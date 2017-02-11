@@ -5,7 +5,6 @@ import static constants.Constants.LOGGER;
 import java.util.LinkedList;
 import java.util.Random;
 
-import game.GameFrame;
 import model.Board;
 import model.FieldType;
 import model.Point;

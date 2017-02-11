@@ -20,9 +20,8 @@ public class Host extends Thread {
 	private DataInputStream streamIn = null;
 	
 	private boolean endGame = false;
-	private Object lock = new Object();
 	
-	private String line = "ppaa";
+	private String line = "";
 	
 	public Host(int aPort) {
 		port = aPort;
@@ -58,10 +57,12 @@ public class Host extends Thread {
 				
 				streamIn = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
 				
+				
 				while (!endGame) {
 					line = streamIn.readUTF();
 					LOGGER.info("Message from client: " + line);
 				}
+				
 				
 				close();
 				
@@ -86,10 +87,18 @@ public class Host extends Thread {
 	}
 	
 	public void sendRequest(String utfLine) {
-		printWriterOut.println(utfLine);
+		if (printWriterOut != null) {
+			printWriterOut.println(utfLine);
+		} else {
+			LOGGER.info("Cannot send message - printWriterOut is null");
+		}
 	}
 	
 	public boolean isEndGame() {
 		return endGame;
+	}
+	
+	public void setEndGame(boolean aEndGame) {
+		endGame = aEndGame;
 	}
 }

@@ -11,7 +11,7 @@ import javax.swing.JPanel;
 
 import components.FieldLabel;
 import game.Game;
-import game.GameFrame;
+import game.Game.Move;
 import model.Board;
 import model.FieldType;
 import model.Point;
@@ -138,7 +138,7 @@ public class GamePanel extends JPanel {
 		return null;
 	}
 	
-	private void handleClickEvent(FieldLabel clicked) {
+	public void handleClickEvent(FieldLabel clicked) {
 //		if (enemy) {
 //			Point clickedPoint = new Point(clicked.getxPos(), clicked.getyPos());
 //			GameFrame.enemyBoard.checkIsShipHit(clickedPoint);
@@ -150,7 +150,27 @@ public class GamePanel extends JPanel {
 		
 		Point clickedPoint = new Point(clicked.getxPos(), clicked.getyPos());
 		
-		Game.move(clickedPoint);
+		synchronized (Game.lock) {
+			if (Game.move == Move.PLAYER) {
+				Game.ENEMY_BOARD.checkIsShipHit(clickedPoint);
+				setCursor(DEFAULT_CUROSR);
+//			Game.move = Move.ENEMY;
+				Game.refreshPanels();
+				Game.move(clickedPoint);
+			} else {
+				LOGGER.info("User click on " + clickedPoint.toString() + " but it's not him turn");
+			}
+		}
+	}
+	
+	public void enemyMove(String attack) {
+		
+		
+		
+		Game.MY_BOARD.checkIsShipHit(null);
+		Game.refreshPanels();
+		
+		
 	}
 	
 	class FieldClick implements MouseListener {
@@ -162,7 +182,7 @@ public class GamePanel extends JPanel {
 
 		@Override
 		public void mouseEntered(MouseEvent e) {
-			if (enemy) {
+			if (enemy && Game.move == Move.PLAYER) {
 				FieldLabel label = (FieldLabel) e.getComponent();
 				if (label.getFieldType() == FieldType.EMPTY ||
 						label.getFieldType() == FieldType.SHIP) {
