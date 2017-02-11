@@ -7,18 +7,14 @@ import javax.swing.JPanel;
 
 import communiaction.Client;
 import communiaction.Host;
-import constants.Constants;
+import communiaction.Message;
 import layout.GamePanel;
 import model.Board;
-import model.Point;
 import tools.ShipGenerator;
 
 public class Game extends JFrame {
 
 	private static final long serialVersionUID = 1L;
-	
-	private String prevMsgClient = "PREV";
-	private String prevMsgHost = "PREV";
 	
 	public static Board MY_BOARD;
 	public static Board ENEMY_BOARD;
@@ -63,10 +59,7 @@ public class Game extends JFrame {
 		
 		MY_BOARD = new Board();
 		ShipGenerator.generateShips(MY_BOARD);
-		
-		GameNetworkThread gnt = new GameNetworkThread();
-		Thread gameThread = new Thread(gnt);
-		gameThread.start();
+
 	}
 
 	private void lossPlayer() {
@@ -114,13 +107,13 @@ public class Game extends JFrame {
 	}
 	
 	
-	public static void move(Point point) {
+	public static void move(Message msg) {
 		switch (Main.gameType) {
 		case HOST:
-			host.sendRequest(point.toString());
+			host.sendMessage(msg);
 			break;
 		case CLIENT:
-			client.sendRequest(point.toString());
+			client.sendMessage(msg);
 			break;
 		default:
 			break;
@@ -141,46 +134,6 @@ public class Game extends JFrame {
 		myPanel.refresh(MY_BOARD);
 		enemyPanel.refresh(ENEMY_BOARD);
 	}
-	
-	
-	class GameNetworkThread implements Runnable {
-		
-		@Override
-		public void run() {
-			
-			// while game not end
-			while (!host.isEndGame()) {
-				synchronized (lock) {
-					
-					if (move == Move.ENEMY) {
-						
-						String clientLine;
-						while (!prevMsgClient.equals((clientLine = client.getLine()))) {
-							tSleep();
-						}
-						
-						prevMsgClient = clientLine;
-						
-						
-					} else if (move == Move.PLAYER) {
-						
-						
-						
-					}
-					
-				}
-				
-				
-			}
-		}
-		
-		private void tSleep() {
-			try {
-				Thread.sleep(5);
-			} catch (InterruptedException e) {
-				Constants.LOGGER.warning("Exception: " + e.toString());
-			}
-		}
-	}
+
 	
 }

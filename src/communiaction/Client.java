@@ -2,66 +2,44 @@ package communiaction;
 
 import static constants.Constants.LOGGER;
 
-import java.io.BufferedReader;
-import java.io.DataOutputStream;
 import java.io.IOException;
-import java.io.InputStreamReader;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.Socket;
 
-import constants.Constants;
 import game.Main;
 
 public class Client extends Thread {
 
 	private Socket socket;
-	private DataOutputStream streamOut;
+	private ObjectOutputStream streamOut;
+	private ObjectInputStream streamIn;
 	
-	private String line;
-	private Object lock = new Object();
-	
-	private boolean gameEnd = false;
-	
-	private BufferedReader in = null;
+	private Message receivedMsg = null;
 	
 	public Client() {
 		try {
-			socket = new Socket("localhost", Main.PORT);
-		
-			
+			socket = new Socket("localhost", Main.PORT);	
 		} catch (IOException e) {
 			LOGGER.warning("Problem with creating socket on port" + Main.PORT + ": " + e.toString());
 		}
 	}
 	
 	private void startConn() throws IOException{ 		
-		streamOut = new DataOutputStream(socket.getOutputStream());
-		in = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+		streamOut = new ObjectOutputStream(socket.getOutputStream());
+		streamIn = new ObjectInputStream(socket.getInputStream());
    }
 	
-	public void setLine(String aLine) {
-		line = aLine; 
-		synchronized (lock) {
-			lock.notifyAll();
-		}
-	}
-	
-	
-	public void sendRequest(String utfLine) {
-		try {
-			streamOut.writeUTF(utfLine);
-			streamOut.flush();
-		} catch (IOException e) {
-			LOGGER.warning("Error when sending request: " + e.toString());
-		}
-	}
-	
 	private void closeConn() {
-		if (in != null) {
-			try {
-				in.close();
-			} catch (IOException e) {
-				Constants.LOGGER.warning("Problem with closing socket");
-			}
+		try {
+		if (streamIn != null) {
+			streamIn.close();
+		} 
+		if (streamOut != null) {
+			streamOut.close();
+		}
+		} catch (IOException e) {
+			LOGGER.warning("Problem when closing streams: " + e.toString());
 		}
 	}
 	
@@ -71,15 +49,13 @@ public class Client extends Thread {
 		try {
 			startConn();
 			
-			line = "PREV";
+			boolean gameEnd = false;
 			
-			while (!line.equals("END")) {
-				line = in.readLine();
-				LOGGER.info("Recived from server: " + line);
+			while (!gameEnd) {
+				receivedMsg = (Message) streamIn.readObject();
+				LOGGER.info("Recived message from host: " + receivedMsg.toString());
 			}
-			synchronized (lock) {
-				gameEnd = false;
-			}
+			
 			closeConn();
 		}
 		catch (Exception e) {
@@ -87,16 +63,16 @@ public class Client extends Thread {
 		}
 	}
 	
-	public boolean isGameEnd() {
-		synchronized (lock) {
-			return gameEnd;
+	public void sendMessage(Message msg) {
+		try {
+			streamOut.writeObject(msg);
+			streamOut.flush();
+		} catch (IOException e) {
+			LOGGER.warning("Error when sending message: " + e.toString());
 		}
 	}
 	
-	public String getLine() {
-		return line;
+	public Message getMessage() {
+		return receivedMsg;
 	}
-	
-	
-	
 }

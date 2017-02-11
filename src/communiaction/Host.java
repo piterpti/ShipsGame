@@ -1,27 +1,25 @@
 package communiaction;
 
-import java.io.BufferedInputStream;
-import java.io.DataInputStream;
+import static constants.Constants.LOGGER;
+
 import java.io.IOException;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
+import java.io.ObjectInputStream;
+import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
-
-import static constants.Constants.LOGGER;
 
 public class Host extends Thread {
 	
 	private final int port;
 	private ServerSocket hostServer;
 	private Socket socket;
-	private PrintWriter printWriterOut;
 	
-	private DataInputStream streamIn = null;
+	private ObjectInputStream streamIn = null;
+	private ObjectOutputStream streamOut;
 	
 	private boolean endGame = false;
 	
-	private String line = "";
+	private Message receivedMsg = null;
 	
 	public Host(int aPort) {
 		port = aPort;
@@ -49,18 +47,17 @@ public class Host extends Thread {
 		while (true) {
 			
 			try {
-				LOGGER.info("Waiting for client");
+				LOGGER.info("Waiting for client connection");
 				socket = hostServer.accept();
 				LOGGER.info("Client accepted: " + socket.toString());
-				printWriterOut = new PrintWriter(new OutputStreamWriter(socket.getOutputStream()), true);
-
+				streamOut  = new ObjectOutputStream(socket.getOutputStream());
 				
-				streamIn = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
+				streamIn = new ObjectInputStream((socket.getInputStream()));
 				
 				
 				while (!endGame) {
-					line = streamIn.readUTF();
-					LOGGER.info("Message from client: " + line);
+					receivedMsg = (Message) streamIn.readObject();
+					LOGGER.info("Message from client: " + receivedMsg.toString());
 				}
 				
 				
@@ -81,17 +78,26 @@ public class Host extends Thread {
 			streamIn.close();
 		}
 		
-		if (printWriterOut != null) {
-			printWriterOut.close();
+		if (streamOut != null) {
+			streamOut.close();
 		}
 	}
 	
-	public void sendRequest(String utfLine) {
-		if (printWriterOut != null) {
-			printWriterOut.println(utfLine);
+	public void sendMessage(Message msg) {
+		if (streamOut != null) {
+			try {
+				streamOut.writeObject(msg);
+				streamOut.flush();
+			} catch (IOException e) {
+				LOGGER.info("Cannot send message - exception:" + e.toString());
+			}
 		} else {
 			LOGGER.info("Cannot send message - printWriterOut is null");
 		}
+	}
+	
+	public Message getMessage() {
+		return receivedMsg;
 	}
 	
 	public boolean isEndGame() {

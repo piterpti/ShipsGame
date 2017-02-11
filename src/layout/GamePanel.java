@@ -9,6 +9,8 @@ import java.util.logging.Logger;
 
 import javax.swing.JPanel;
 
+import communiaction.Message;
+import communiaction.Message.Type;
 import components.FieldLabel;
 import game.Game;
 import game.Game.Move;
@@ -150,17 +152,10 @@ public class GamePanel extends JPanel {
 		
 		Point clickedPoint = new Point(clicked.getxPos(), clicked.getyPos());
 		
-		synchronized (Game.lock) {
-			if (Game.move == Move.PLAYER) {
-				Game.ENEMY_BOARD.checkIsShipHit(clickedPoint);
-				setCursor(DEFAULT_CUROSR);
-//			Game.move = Move.ENEMY;
-				Game.refreshPanels();
-				Game.move(clickedPoint);
-			} else {
-				LOGGER.info("User click on " + clickedPoint.toString() + " but it's not him turn");
-			}
-		}
+		Message msg = new Message(1, clickedPoint, "this is text..", Type.ATTACK);
+		
+		Game.move(msg);
+		
 	}
 	
 	public void enemyMove(String attack) {
