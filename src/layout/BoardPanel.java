@@ -1,5 +1,7 @@
 package layout;
 
+import java.awt.BorderLayout;
+import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.GridLayout;
 import java.awt.event.MouseEvent;
@@ -7,17 +9,22 @@ import java.awt.event.MouseListener;
 import java.util.LinkedList;
 import java.util.logging.Logger;
 
+import javax.swing.JLabel;
 import javax.swing.JPanel;
+import javax.swing.SwingConstants;
 
 import communiaction.Message;
 import communiaction.Message.TypeMsg;
 import components.FieldLabel;
+import constants.Constants;
 import game.Game;
+import game.Main;
+import game.Main.GameType;
 import model.Board;
 import model.FieldType;
 import model.Point;
 
-public class GamePanel extends JPanel {
+public class BoardPanel extends JPanel {
 	
 	private final static Logger LOGGER = Logger.getLogger(Logger.GLOBAL_LOGGER_NAME);
 	
@@ -28,13 +35,28 @@ public class GamePanel extends JPanel {
 	
 	private LinkedList<FieldLabel> fields;
 	
+	private JPanel fieldPanel;
+	private JLabel boardNameLabel;
+	
 	private boolean enemy = false;
 
-	public GamePanel(boolean aEnemy) {
-		super(new GridLayout(11, 11));
+	public BoardPanel(boolean aEnemy, String boardName) {
+		super(new BorderLayout());
+		fieldPanel = new JPanel(new GridLayout(11, 11));
+		
 		fields = new LinkedList<>();
 		enemy = aEnemy;
 		addLabels();
+		add(fieldPanel, BorderLayout.CENTER);
+		
+		boardNameLabel = new JLabel(boardName);
+		boardNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		add(boardNameLabel, BorderLayout.NORTH);
+		if (aEnemy) {
+			boardNameLabel.setForeground(Color.RED);
+		} else {
+			boardNameLabel.setForeground(new Color(0, 131, 2));
+		}
 	}
 	
 	private void addLabels() {
@@ -67,7 +89,7 @@ public class GamePanel extends JPanel {
 	}
 	
 	private void addLabel(FieldLabel label) {
-		add(label);
+		fieldPanel.add(label);
 		fields.add(label);
 	}
 	
@@ -86,19 +108,18 @@ public class GamePanel extends JPanel {
 			if (board.isMyBoard()) {
 				switch(fl.getFieldType()) {
 				case SHIP:
-					fl.setText("Ship");
+					fl.setLook(Constants.SHIP_COLOR, "");
 					break;
 				case DAMAGED:
-					fl.setText("Damaged");
+					fl.setLook(Constants.DAMAGED_COLOR, "");
 					break;
 				case DESTROYED:
-					fl.setText("Destroyed");
+					fl.setLook(Constants.DESTROYED_COLOR, "X");
 					break;
 				case EMPTY:
-					fl.setText("");
 					break;
 				case SHOOTED:
-					fl.setText(".");
+					fl.setLook(Constants.SHOOTED_COLOR, ".");
 					break;
 				case FRAME:
 					// nothing do to
@@ -111,13 +132,13 @@ public class GamePanel extends JPanel {
 			} else {
 				switch (fl.getFieldType()) {
 				case DAMAGED:
-					fl.setText("dmg");
+					fl.setLook(Constants.DAMAGED_COLOR, "");
 					break;
 				case DESTROYED:
-					fl.setText("dstr");
+					fl.setLook(Constants.DESTROYED_COLOR, "X");
 					break;
 				case SHOOTED:
-					fl.setText(".");
+					fl.setLook(Constants.SHOOTED_COLOR, ".");
 					break;
 				case FRAME:
 					break;
@@ -126,7 +147,6 @@ public class GamePanel extends JPanel {
 				}
 			}
 		}
-		
 	}
 	
 	public FieldLabel findLabelWithCords(int xp, int yp) {
@@ -141,12 +161,17 @@ public class GamePanel extends JPanel {
 	
 	public void handleClickEvent(FieldLabel clicked) {
 
-		Point clickedPoint = new Point(clicked.getxPos(), clicked.getyPos());
+		Point clickedPoint = new Point(clicked.getxPos(), clicked.getyPos());	
+		if (Main.gameType == GameType.HOST || Main.gameType == GameType.CLIENT) {
+			Message msg = new Message(1, clickedPoint, TypeMsg.ATTACK, Game.move);
+			Game.move(msg);
+		} else if (Main.gameType == GameType.USER_VS_COMPUTER) {
+			Game.userMove(clickedPoint);
+		}
 		
-		Message msg = new Message(1, clickedPoint, TypeMsg.ATTACK, Game.move);
-		Game.move(msg);
+		setCursor(DEFAULT_CUROSR);
 	}
-	
+
 	class FieldClick implements MouseListener {
 
 		@Override
@@ -178,7 +203,7 @@ public class GamePanel extends JPanel {
 		@Override
 		public void mouseReleased(MouseEvent e) {
 			FieldLabel label = (FieldLabel) e.getComponent();
-			if (Game.isYourMove()) {
+			if (Game.isYourMove() && enemy) {
 				handleClickEvent(label);
 			}
 			logClick(label);

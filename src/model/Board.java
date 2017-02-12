@@ -68,7 +68,12 @@ public class Board implements Serializable{
 		
 		HashMap<Point, FieldType> resultPoints = new HashMap<>();
 		
-		if (type == FieldType.EMPTY) {
+		if (type == FieldType.SHOOTED || type == FieldType.DAMAGED
+				|| type == FieldType.DESTROYED) {
+			return null;
+		}
+		
+		else if (type == FieldType.EMPTY) {
 			
 			fields[point.getX()][point.getY()] = FieldType.SHOOTED;
 			resultPoints.put(point, FieldType.SHOOTED);

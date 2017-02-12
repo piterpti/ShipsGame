@@ -91,7 +91,8 @@ public class NetworkSettings extends JFrame {
 					errorLabel.setText("");
 					
 					Main.gameType = GameType.HOST;
-					new Game().setVisible(true);
+					Main.gameFrame = new Game();
+					Main.gameFrame.setVisible(true);
 					dispose();
 				}
 			}

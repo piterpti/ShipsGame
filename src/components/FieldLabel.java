@@ -7,6 +7,7 @@ import javax.swing.BorderFactory;
 import javax.swing.JLabel;
 import javax.swing.SwingConstants;
 
+import constants.Constants;
 import model.FieldType;
 
 public class FieldLabel extends JLabel {
@@ -80,12 +81,15 @@ public class FieldLabel extends JLabel {
 	}
 
 	private void defaultSettings() {
+		Constants.DEFAULT_COLOR = getBackground();
 		setSize(DEFAULT_DIM);
 		setPreferredSize(DEFAULT_DIM);
 		setMinimumSize(DEFAULT_DIM);
 		setMaximumSize(DEFAULT_DIM);
 		setOpaque(true);
 		setBorder(BorderFactory.createLineBorder(Color.GRAY, 1));
+		// blue color
+		setBackground(Constants.WATER_COLOR);
 	}
 
 	public FieldType getFieldType() {
@@ -94,5 +98,13 @@ public class FieldLabel extends JLabel {
 
 	public void setFieldType(FieldType fieldType) {
 		this.fieldType = fieldType;
+		if (fieldType == FieldType.FRAME) {
+			setBackground(Constants.DEFAULT_COLOR);
+		}
+	}
+	
+	public void setLook(Color c, String txt) {
+		setBackground(c);
+		setText(txt);
 	}
 }

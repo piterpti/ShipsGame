@@ -25,6 +25,7 @@ public class Main {
 
 	private static MainMenu mainMenu;
 	private static NetworkType networkType;
+	public static Game gameFrame;
 	
 	public static GameType gameType = GameType.USER_VS_COMPUTER;
 
@@ -44,28 +45,18 @@ public class Main {
 				mainMenu.setVisible(true);
 			}
 		});
-		
 	}
 	
 	public static void startGame() {
-
-//		if (gameFrame != null) {
-//			gameFrame.dispose();
-//			gameFrame = null;
-//		}
-//		
-//		gameType = GameType.USER_VS_COMPUTER;
-//		
-//		mainMenu.setVisible(false);
-//		gameFrame = new GameFrame();
-//		gameFrame.setVisible(true);
+		gameType = GameType.USER_VS_COMPUTER;		
+		
+		gameFrame = new Game();
+		gameFrame.setVisible(true);
+		
+		mainMenu.setVisible(false);
 	}
 	
 	public static void backToMenu() {
-//		if (gameFrame != null) {
-//			gameFrame.dispose();
-//			gameFrame = null;
-//		}
 		
 		if (networkType != null) {
 			networkType.dispose();
@@ -86,5 +77,12 @@ public class Main {
 		networkType.setVisible(true);
 	}
 	
-
+	public static void endGame() {
+		if (gameFrame != null) {
+			gameFrame.dispose();
+			gameFrame = null;
+		}
+		
+		mainMenu.setVisible(true);
+	}
 }

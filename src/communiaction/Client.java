@@ -23,7 +23,7 @@ public class Client extends Thread {
 		try {
 			socket = new Socket("localhost", ConnectionConfig.PORT);	
 		} catch (IOException e) {
-			LOGGER.warning("Problem with creating socket on port" + ConnectionConfig.PORT + ": " + e.toString());
+			LOGGER.warning("Problem with creating socket on port " + ConnectionConfig.PORT + ": " + e.toString());
 		}
 	}
 	

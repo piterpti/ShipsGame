@@ -77,6 +77,5 @@ public class MainMenu extends JFrame {
 	private static void startGame() {
 		Main.startGame();
 	}
-
 }
  

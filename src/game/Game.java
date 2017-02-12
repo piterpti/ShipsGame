@@ -1,5 +1,7 @@
 package game;
 
+import static constants.Constants.LOGGER;
+
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
@@ -10,19 +12,18 @@ import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
+import bot.Bot;
 import communiaction.Client;
 import communiaction.ConnectionConfig;
 import communiaction.Host;
 import communiaction.Message;
 import communiaction.Message.TypeMsg;
 import game.Main.GameType;
-import layout.GamePanel;
+import layout.BoardPanel;
 import model.Board;
 import model.FieldType;
 import model.Point;
 import tools.ShipGenerator;
-
-import static constants.Constants.LOGGER;
 
 public class Game extends JFrame {
 
@@ -33,15 +34,19 @@ public class Game extends JFrame {
 	
 	public static Object lock = new Object();
 	
-	private static GamePanel myPanel;
-	private static GamePanel enemyPanel;
+	private static BoardPanel myPanel;
+	private static BoardPanel enemyPanel;
 	
 	private static Host host;
 	private static Client client;
 	
+	private static Bot enemy;
+	
 	public enum Move {
 		HOST,
-		CLIENT
+		CLIENT,
+		USER,
+		BOT
 	}
 	
 	public static Move move = Move.HOST;
@@ -54,16 +59,6 @@ public class Game extends JFrame {
 	}
 	
 	private void initGame() {
-		switch (Main.gameType) {
-		case HOST:
-			initHost();
-			break;
-		case CLIENT:
-			initClient();
-			break;
-		default:
-			break;
-		}
 		
 		synchronized (lock) {
 			ENEMY_BOARD = new Board();
@@ -73,7 +68,19 @@ public class Game extends JFrame {
 			MY_BOARD.setMyBoard(true);
 			ShipGenerator.generateShips(MY_BOARD);
 		}
+		
+		switch (Main.gameType) {
 
+		case HOST:
+			initHost();
+			break;
+		case CLIENT:
+			initClient();
+			break;
+		case USER_VS_COMPUTER:
+			initBot();
+			break;
+		}
 		refreshPanels();
 	}
 	
@@ -81,7 +88,11 @@ public class Game extends JFrame {
 
 	private void lossPlayer() {
 		Random random = new Random();
-		move = random.nextInt(2) == 0 ? Move.CLIENT : Move.HOST;
+		if (Main.gameType == GameType.HOST) {
+			move = random.nextInt(2) == 0 ? Move.CLIENT : Move.HOST;
+		} else if (Main.gameType == GameType.USER_VS_COMPUTER) {
+			move = random.nextInt(2) == 0 ? Move.USER : Move.BOT;
+		}
 	}
 
 	private void initComponents() {
@@ -89,8 +100,8 @@ public class Game extends JFrame {
 		this.setTitle("Ships game");
 		this.setResizable(false);
 		
-		myPanel = new GamePanel(false);
-		enemyPanel = new GamePanel(true);
+		myPanel = new BoardPanel(false, "Your board");
+		enemyPanel = new BoardPanel(true, "Enemy board");
 		
 		JPanel panel = new JPanel();
 		GroupLayout layout = new GroupLayout(panel);
@@ -165,23 +176,25 @@ public class Game extends JFrame {
 		
 			case ATTACK:
 				HashMap<Point, FieldType> points = MY_BOARD.checkIsShipHit(recMsg.getPoint());
-				if (isShipHitted(points)) {
-					move = Move.CLIENT;
-				} else {
-					move = Move.HOST;
-				}
-				refreshPanels();
-				
-				if (checkLose()) {
-					Message endMsg = new Message(TypeMsg.END, move);
-					host.sendMessage(endMsg);
+				if (points != null) {
+					if (isShipHitted(points)) {
+						move = Move.CLIENT;
+					} else {
+						move = Move.HOST;
+					}
+					refreshPanels();
 					
-					endGame(true);
-					
-				} else {
-					Message sendMsg = new Message(recMsg.getId() + 1, null, TypeMsg.POINTS, move);
-					sendMsg.setEnemyPoints(points);
-					host.sendMessage(sendMsg);
+					if (checkLose(false)) {
+						Message endMsg = new Message(TypeMsg.END, move);
+						host.sendMessage(endMsg);
+						
+						endGame(true);
+						
+					} else {
+						Message sendMsg = new Message(recMsg.getId() + 1, null, TypeMsg.POINTS, move);
+						sendMsg.setEnemyPoints(points);
+						host.sendMessage(sendMsg);
+					}
 				}
 				
 				break;
@@ -212,24 +225,26 @@ public class Game extends JFrame {
 		switch (recMsg.getType()) {
 			case ATTACK:
 				HashMap<Point, FieldType> points = MY_BOARD.checkIsShipHit(recMsg.getPoint());
-				if (isShipHitted(points)) {
-					move = Move.HOST;
-				} else {
-					move = Move.CLIENT;
-				}
-				
-				refreshPanels();
-				
-				if (checkLose()) {
-					Message endMsg = new Message(TypeMsg.END, move);
-					client.sendMessage(endMsg);
+				if (points != null) {
+					if (isShipHitted(points)) {
+						move = Move.HOST;
+					} else {
+						move = Move.CLIENT;
+					}
 					
-					endGame(false);
+					refreshPanels();
 					
-				} else {
-					Message sendMsg = new Message(recMsg.getId() + 1, null, TypeMsg.POINTS, move);
-					sendMsg.setEnemyPoints(points);
-					client.sendMessage(sendMsg);
+					if (checkLose(false)) {
+						Message endMsg = new Message(TypeMsg.END, move);
+						client.sendMessage(endMsg);
+						
+						endGame(false);
+						
+					} else {
+						Message sendMsg = new Message(recMsg.getId() + 1, null, TypeMsg.POINTS, move);
+						sendMsg.setEnemyPoints(points);
+						client.sendMessage(sendMsg);
+					}
 				}
 				
 				break;
@@ -265,6 +280,10 @@ public class Game extends JFrame {
 			return true;
 		}
 		
+		if (Main.gameType == GameType.USER_VS_COMPUTER && move == Move.USER) {
+			return true;
+		}
+		
 		return false;
 	}
 	
@@ -286,8 +305,13 @@ public class Game extends JFrame {
 		}
 	}
 	
-	private static boolean checkLose() {
-		FieldType[][] fields = MY_BOARD.getFields();
+	private static boolean checkLose(boolean bot) {
+		FieldType[][] fields;
+		if (!bot) {
+			fields = MY_BOARD.getFields();
+		} else {
+			fields = ENEMY_BOARD.getFields();
+		}
 		
 		for (int y = 0; y < 10; y++) {
 			for (int x = 0; x < 10; x++) {
@@ -308,7 +332,78 @@ public class Game extends JFrame {
 			JOptionPane.showMessageDialog(null, "You lose!");
 		}
 		
-		System.exit(0);
+		Main.endGame();
 		
-	}	
+	}
+	
+	private void initBot() {
+		
+		enemy = new Bot();
+		ENEMY_BOARD = enemy.getMyBoard();
+		lossPlayer();
+		botTurn();
+	}
+	
+	public static void botTurn() {
+		BotTurn botTurn = new BotTurn();
+		Thread t = new Thread(botTurn);
+		t.start();
+	}
+	
+	public static void userMove(Point point) {
+		HashMap<Point, FieldType> points = ENEMY_BOARD.checkIsShipHit(point);
+		if (points != null) {
+			if (isShipHitted(points)) {
+				move = Move.USER;
+			} else {
+				move = Move.BOT;
+				botTurn();
+			}
+			
+			if (checkLose(false)) {
+				endGame(false);
+			}
+		}
+		
+		setTurnText();
+		refreshPanels();
+	}
+	
+	static class BotTurn implements Runnable {
+		
+		private int sleepTime = 1000;
+		
+		public BotTurn() {
+			sleepTime = new Random().nextInt(1500) + 1000;
+		}
+		
+		@Override
+		public void run() {
+				while (!isYourMove()) {
+				try {
+					Thread.sleep(5);
+					LOGGER.info("Bot thread sleep for " + sleepTime + " ms");
+				} catch (InterruptedException e) {
+					LOGGER.warning("Problem with bot thread interrupting: " + e.toString());
+				}
+				Point toAttack = enemy.nextTurn();
+				HashMap<Point, FieldType> points = MY_BOARD.checkIsShipHit(toAttack);
+				if (checkLose(true)) {
+					endGame(true);
+				}
+				if (points == null) {
+					break;
+				}
+				if (isShipHitted(points)) {
+					move = Move.BOT;
+				} else {
+					move = Move.USER;
+				}			
+				refreshPanels();
+			}
+	
+			setTurnText();
+		}
+		
+	}
 }

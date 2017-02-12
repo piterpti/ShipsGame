@@ -16,26 +16,19 @@ public class Bot extends Enemy{
 		super();
 	}
 	
-	public void nextTurn() {
-		
-		LOGGER.info("Computer player turn..");
-		shot();
-//		GameFrame.userMove = true;
-//		GameFrame.checkWin();
-		
+	public Point nextTurn() {
+		return shot();
 	}
-	
 
-
-	public static Board getMyBoard() {
+	public Board getMyBoard() {
 		return myBoard;
 	}
 
-	public static void setMyBoard(Board myBoard) {
+	public void setMyBoard(Board myBoard) {
 		Bot.myBoard = myBoard;
 	}
 
-	public static Board getEnemmyBoard() {
+	public Board getEnemmyBoard() {
 		return enemmyBoard;
 	}
 
@@ -43,8 +36,9 @@ public class Bot extends Enemy{
 		Bot.enemmyBoard = enemmyBoard;
 	}
 	
-	private void shot() {
+	private Point shot() {
 		
+		Point toAttack = null;
 		LinkedList<Point> damagedPoints = getDamagedShips();
 		LinkedList<Point> pointsToAttack = new LinkedList<>();
 		
@@ -65,7 +59,7 @@ public class Bot extends Enemy{
 			int shipNumber = random.nextInt(pointsToAttack.size());
 			int counter = 0;
 			
-			Point toAttack = null;
+			
 			for (Point p : pointsToAttack) {
 				if (counter == shipNumber) {
 					toAttack = p;
@@ -73,12 +67,15 @@ public class Bot extends Enemy{
 				}
 				counter++;
 			}
-			enemmyBoard.checkIsShipHit(toAttack);
+			
 			LOGGER.info("Computer attak point " + toAttack.toString());
+			return toAttack;
 			
 		} else {
 			LOGGER.warning("Error toAttack point is null");
 		}
+		
+		return null;
 	}
 	
 	private LinkedList<Point> getDamagedShips() {

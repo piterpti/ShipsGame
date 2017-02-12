@@ -1,5 +1,6 @@
 package bot;
 
+import game.Game;
 import model.Board;
 import tools.ShipGenerator;
 
@@ -11,7 +12,7 @@ public class Enemy implements EnemeyMethods {
 	public Enemy() {
 		myBoard = new Board();
 		ShipGenerator.generateShips(myBoard);
-//		enemmyBoard = GameFrame.myBoard;
+		enemmyBoard = Game.MY_BOARD;
 	}
 
 	@Override
