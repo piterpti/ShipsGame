@@ -7,6 +7,7 @@ import java.util.Random;
 import javax.swing.GroupLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
+import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import communiaction.Client;
@@ -167,9 +168,18 @@ public class Game extends JFrame {
 					move = Move.HOST;
 				}
 				refreshPanels();
-				Message sendMsg = new Message(recMsg.getId() + 1, null, TypeMsg.POINTS, move);
-				sendMsg.setEnemyPoints(points);
-				host.sendMessage(sendMsg);
+				
+				if (checkLose()) {
+					Message endMsg = new Message(TypeMsg.END, move);
+					host.sendMessage(endMsg);
+					
+					endGame(true);
+					
+				} else {
+					Message sendMsg = new Message(recMsg.getId() + 1, null, TypeMsg.POINTS, move);
+					sendMsg.setEnemyPoints(points);
+					host.sendMessage(sendMsg);
+				}
 				
 				break;
 				
@@ -177,6 +187,10 @@ public class Game extends JFrame {
 				ENEMY_BOARD.setFieldsTo(recMsg.getEnemyPoints());
 				refreshPanels();
 				move = recMsg.getMove();
+				break;
+				
+			case END:
+				endGame(true);
 				break;
 				
 			default:
@@ -200,10 +214,20 @@ public class Game extends JFrame {
 				} else {
 					move = Move.CLIENT;
 				}
+				
 				refreshPanels();
-				Message sendMsg = new Message(recMsg.getId() + 1, null, TypeMsg.POINTS, move);
-				sendMsg.setEnemyPoints(points);
-				client.sendMessage(sendMsg);
+				
+				if (checkLose()) {
+					Message endMsg = new Message(TypeMsg.END, move);
+					client.sendMessage(endMsg);
+					
+					endGame(false);
+					
+				} else {
+					Message sendMsg = new Message(recMsg.getId() + 1, null, TypeMsg.POINTS, move);
+					sendMsg.setEnemyPoints(points);
+					client.sendMessage(sendMsg);
+				}
 				
 				break;
 				
@@ -215,6 +239,10 @@ public class Game extends JFrame {
 				
 			case WELCOME:
 				move = recMsg.getMove();
+				break;
+				
+			case END:
+				endGame(true);
 				break;
 				
 			default:
@@ -253,6 +281,32 @@ public class Game extends JFrame {
 		} else {
 			movementLabel.setText("ENEMY TURN");
 		}
+	}
+	
+	private static boolean checkLose() {
+		FieldType[][] fields = MY_BOARD.getFields();
+		
+		for (int y = 0; y < 10; y++) {
+			for (int x = 0; x < 10; x++) {
+				if (fields[x][y] == FieldType.SHIP) {
+					return false;
+				}
+			}
+		}
+		
+		return true;
+	}
+	
+	private static void endGame(boolean win) {
+		
+		if (win) {
+			JOptionPane.showMessageDialog(null, "You win!");
+		} else {
+			JOptionPane.showMessageDialog(null, "You lose!");
+		}
+		
+		System.exit(0);
+		
 	}
 
 	
