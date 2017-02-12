@@ -8,7 +8,6 @@ import java.io.ObjectOutputStream;
 import java.net.Socket;
 
 import game.Game;
-import game.Main;
 
 public class Client extends Thread {
 
@@ -22,9 +21,9 @@ public class Client extends Thread {
 	
 	public Client() {
 		try {
-			socket = new Socket("localhost", Main.PORT);	
+			socket = new Socket("localhost", ConnectionConfig.PORT);	
 		} catch (IOException e) {
-			LOGGER.warning("Problem with creating socket on port" + Main.PORT + ": " + e.toString());
+			LOGGER.warning("Problem with creating socket on port" + ConnectionConfig.PORT + ": " + e.toString());
 		}
 	}
 	
@@ -67,7 +66,7 @@ public class Client extends Thread {
 			closeConn();
 		}
 		catch (Exception e) {
-			LOGGER.warning("Problem with connection on port" + Main.PORT + ": " + e.toString());
+			LOGGER.warning("Problem with connection on port " + ConnectionConfig.PORT + ": " + e.toString());
 		}
 	}
 	

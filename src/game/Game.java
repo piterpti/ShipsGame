@@ -11,6 +11,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 
 import communiaction.Client;
+import communiaction.ConnectionConfig;
 import communiaction.Host;
 import communiaction.Message;
 import communiaction.Message.TypeMsg;
@@ -75,6 +76,8 @@ public class Game extends JFrame {
 
 		refreshPanels();
 	}
+	
+	
 
 	private void lossPlayer() {
 		Random random = new Random();
@@ -142,7 +145,7 @@ public class Game extends JFrame {
 	
 	private void initHost() {
 		lossPlayer();
-		host = new Host(Main.PORT, move);
+		host = new Host(ConnectionConfig.PORT, move);
 		host.start();
 		setTurnText();
 	}
@@ -307,7 +310,5 @@ public class Game extends JFrame {
 		
 		System.exit(0);
 		
-	}
-
-	
+	}	
 }

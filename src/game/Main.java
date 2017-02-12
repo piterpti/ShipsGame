@@ -4,6 +4,7 @@ import java.io.IOException;
 
 import javax.swing.SwingUtilities;
 
+import communiaction.ConnectionConfig;
 import layout.MainMenu;
 import layout.NetworkType;
 import logger.MyLogger;
@@ -21,15 +22,11 @@ public class Main {
 			e.printStackTrace();
 		}
 	}
-	
-	private static GameFrame gameFrame;
+
 	private static MainMenu mainMenu;
 	private static NetworkType networkType;
 	
 	public static GameType gameType = GameType.USER_VS_COMPUTER;
-	
-	public static String NICKNAME = "Piter";
-	public static int PORT = 8888;
 
 	public enum GameType {
 		USER_VS_COMPUTER,
@@ -39,6 +36,7 @@ public class Main {
 	
 	public static void main(String[] args) {
 		
+		ConnectionConfig.getConnectionConfig();
 		SwingUtilities.invokeLater(new Runnable() {
 			@Override
 			public void run() {
@@ -51,23 +49,23 @@ public class Main {
 	
 	public static void startGame() {
 
-		if (gameFrame != null) {
-			gameFrame.dispose();
-			gameFrame = null;
-		}
-		
-		gameType = GameType.USER_VS_COMPUTER;
-		
-		mainMenu.setVisible(false);
-		gameFrame = new GameFrame();
-		gameFrame.setVisible(true);
+//		if (gameFrame != null) {
+//			gameFrame.dispose();
+//			gameFrame = null;
+//		}
+//		
+//		gameType = GameType.USER_VS_COMPUTER;
+//		
+//		mainMenu.setVisible(false);
+//		gameFrame = new GameFrame();
+//		gameFrame.setVisible(true);
 	}
 	
 	public static void backToMenu() {
-		if (gameFrame != null) {
-			gameFrame.dispose();
-			gameFrame = null;
-		}
+//		if (gameFrame != null) {
+//			gameFrame.dispose();
+//			gameFrame = null;
+//		}
 		
 		if (networkType != null) {
 			networkType.dispose();

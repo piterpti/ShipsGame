@@ -10,6 +10,7 @@ import javax.swing.JLabel;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
 
+import communiaction.ConnectionConfig;
 import components.MenuButton;
 import constants.Constants;
 import game.Game;
@@ -41,7 +42,7 @@ public class NetworkSettings extends JFrame {
 		portTxtField = new JTextField(20);
 		nickTxtField = new JTextField(20);
 		
-		portTxtField.setText(Main.PORT + "");
+		portTxtField.setText(ConnectionConfig.PORT + "");
 		
 		portTxtField.setFont(Constants.FONT);
 		nickTxtField.setFont(Constants.FONT);
