@@ -1,5 +1,9 @@
 package game;
 
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Random;
+
 import javax.swing.GroupLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
@@ -9,9 +13,14 @@ import communiaction.Client;
 import communiaction.Host;
 import communiaction.Message;
 import communiaction.Message.TypeMsg;
+import game.Main.GameType;
 import layout.GamePanel;
 import model.Board;
+import model.FieldType;
+import model.Point;
 import tools.ShipGenerator;
+
+import static constants.Constants.LOGGER;
 
 public class Game extends JFrame {
 
@@ -29,17 +38,16 @@ public class Game extends JFrame {
 	private static Client client;
 	
 	public enum Move {
-		PLAYER,
-		ENEMY
+		HOST,
+		CLIENT
 	}
 	
-	public static Move move = Move.PLAYER;
+	public static Move move = Move.HOST;
 	
-	private static JLabel movementLabel = new JLabel("Ruch");
+	private static JLabel movementLabel = new JLabel("Turn: ");
 	
 	public Game() {
 		initComponents();
-		lossPlayer();
 		initGame();
 	}
 	
@@ -55,20 +63,21 @@ public class Game extends JFrame {
 			break;
 		}
 		
-		ENEMY_BOARD = new Board();
-		ENEMY_BOARD.setMyBoard(false);
-		
-		
-		MY_BOARD = new Board();
-		MY_BOARD.setMyBoard(true);
-		ShipGenerator.generateShips(MY_BOARD);
+		synchronized (lock) {
+			ENEMY_BOARD = new Board();
+			ENEMY_BOARD.setMyBoard(false);
+			
+			MY_BOARD = new Board();
+			MY_BOARD.setMyBoard(true);
+			ShipGenerator.generateShips(MY_BOARD);
+		}
 
 		refreshPanels();
 	}
 
 	private void lossPlayer() {
-//		Random random = new Random();
-//		move = random.nextInt(2) == 0 ? Move.PLAYER : Move.ENEMY;
+		Random random = new Random();
+		move = random.nextInt(2) == 0 ? Move.CLIENT : Move.HOST;
 	}
 
 	private void initComponents() {
@@ -115,13 +124,12 @@ public class Game extends JFrame {
 		switch (Main.gameType) {
 		case HOST:
 			host.sendMessage(msg);
-			movementLabel.setText("HOST");
 			break;
 		case CLIENT:
 			client.sendMessage(msg);
-			movementLabel.setText("CLIENT");
 			break;
 		default:
+			LOGGER.warning("Wrong game type");
 			break;
 		}
 	}
@@ -132,8 +140,10 @@ public class Game extends JFrame {
 	}
 	
 	private void initHost() {
-		host = new Host(Main.PORT);
+		lossPlayer();
+		host = new Host(Main.PORT, move);
 		host.start();
+		setTurnText();
 	}
 	
 	public static void refreshPanels() {
@@ -146,28 +156,103 @@ public class Game extends JFrame {
 	public static void hostRecMsg() {
 		
 		Message recMsg = host.getMessage();
+			
+		switch (recMsg.getType()) {
 		
-		if (recMsg.getType() == TypeMsg.BOARD) {
-			
-			ENEMY_BOARD = recMsg.getBoard();
-			ENEMY_BOARD.setMyBoard(false);
-			
-			refreshPanels();
-			
+			case ATTACK:
+				HashMap<Point, FieldType> points = MY_BOARD.checkIsShipHit(recMsg.getPoint());
+				if (isShipHitted(points)) {
+					move = Move.CLIENT;
+				} else {
+					move = Move.HOST;
+				}
+				refreshPanels();
+				Message sendMsg = new Message(recMsg.getId() + 1, null, TypeMsg.POINTS, move);
+				sendMsg.setEnemyPoints(points);
+				host.sendMessage(sendMsg);
+				
+				break;
+				
+			case POINTS:
+				ENEMY_BOARD.setFieldsTo(recMsg.getEnemyPoints());
+				refreshPanels();
+				move = recMsg.getMove();
+				break;
+				
+			default:
+				LOGGER.warning("Incorrect message type");
+				break;
+		
 		}
+		
+		setTurnText();
+		
 	}
 	
 	public static void clientRecMsg() {
 		Message recMsg = client.getMessage();
-		if (recMsg.getType() == TypeMsg.ATTACK) {
-			
-			MY_BOARD.checkIsShipHit(recMsg.getPoint());
-			Message sendMsg = new Message(recMsg.getId() + 1, null, "board", TypeMsg.BOARD);
-			sendMsg.setBoard(MY_BOARD);
-			client.sendMessage(sendMsg);
+		
+		switch (recMsg.getType()) {
+			case ATTACK:
+				HashMap<Point, FieldType> points = MY_BOARD.checkIsShipHit(recMsg.getPoint());
+				if (isShipHitted(points)) {
+					move = Move.HOST;
+				} else {
+					move = Move.CLIENT;
+				}
+				refreshPanels();
+				Message sendMsg = new Message(recMsg.getId() + 1, null, TypeMsg.POINTS, move);
+				sendMsg.setEnemyPoints(points);
+				client.sendMessage(sendMsg);
+				
+				break;
+				
+			case POINTS:
+				ENEMY_BOARD.setFieldsTo(recMsg.getEnemyPoints());
+				move = recMsg.getMove();
+				refreshPanels();
+				break;
+				
+			case WELCOME:
+				move = recMsg.getMove();
+				break;
+				
+			default:
+				LOGGER.warning("Incorrect message type");
+				break;
+		
 		}
 		
-		refreshPanels();
+		setTurnText();
+	}
+	
+	public static boolean isYourMove() {
+		if (Main.gameType == GameType.HOST && move == Move.HOST) {
+			return true;
+		}
+		if (Main.gameType == GameType.CLIENT && move == Move.CLIENT) {
+			return true;
+		}
+		
+		return false;
+	}
+	
+	private static boolean isShipHitted(HashMap<Point, FieldType> points) {
+		for (Map.Entry<Point, FieldType> entry : points.entrySet()) {
+			if (entry.getValue() == FieldType.DAMAGED ||
+					entry.getValue() == FieldType.DESTROYED) {
+				return true;
+			}
+		}
+		return false;
+	}
+	
+	private static void setTurnText() {
+		if (isYourMove()) {
+			movementLabel.setText("YOUR TURN");
+		} else {
+			movementLabel.setText("ENEMY TURN");
+		}
 	}
 
 	

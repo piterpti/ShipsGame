@@ -13,7 +13,6 @@ import communiaction.Message;
 import communiaction.Message.TypeMsg;
 import components.FieldLabel;
 import game.Game;
-import game.Game.Move;
 import model.Board;
 import model.FieldType;
 import model.Point;
@@ -144,10 +143,8 @@ public class GamePanel extends JPanel {
 
 		Point clickedPoint = new Point(clicked.getxPos(), clicked.getyPos());
 		
-		if (Game.move == Move.PLAYER) {
-			Message msg = new Message(1, clickedPoint, "ATTACK", TypeMsg.ATTACK);
-			Game.move(msg);
-		}
+		Message msg = new Message(1, clickedPoint, TypeMsg.ATTACK, Game.move);
+		Game.move(msg);
 	}
 	
 	class FieldClick implements MouseListener {
@@ -159,7 +156,7 @@ public class GamePanel extends JPanel {
 
 		@Override
 		public void mouseEntered(MouseEvent e) {
-			if (enemy && Game.move == Move.PLAYER) {
+			if (enemy && Game.isYourMove()) {
 				FieldLabel label = (FieldLabel) e.getComponent();
 				if (label.getFieldType() == FieldType.EMPTY ||
 						label.getFieldType() == FieldType.SHIP) {
@@ -181,7 +178,9 @@ public class GamePanel extends JPanel {
 		@Override
 		public void mouseReleased(MouseEvent e) {
 			FieldLabel label = (FieldLabel) e.getComponent();
-			handleClickEvent(label);
+			if (Game.isYourMove()) {
+				handleClickEvent(label);
+			}
 			logClick(label);
 		}
 	}

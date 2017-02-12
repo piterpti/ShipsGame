@@ -1,8 +1,12 @@
 package communiaction;
 
 import java.io.Serializable;
+import java.util.HashMap;
+import java.util.Map;
 
+import game.Game.Move;
 import model.Board;
+import model.FieldType;
 import model.Point;
 
 public class Message implements Serializable {
@@ -10,25 +14,29 @@ public class Message implements Serializable {
 	private static final long serialVersionUID = 1L;
 
 	public enum TypeMsg {
-		WELCOME, ATTACK, END, BOARD
+		WELCOME, ATTACK, END, POINTS
 	}
 	
 	private Point point;
-	private String text;
 	private TypeMsg type;
 	private int id;
 	private Board board;
 	
-	public Message(TypeMsg aType) {
+	private Move move;
+	
+	private HashMap<Point, FieldType> enemyPoints = new HashMap<>();
+	
+	public Message(TypeMsg aType, Move aMove) {
 		type = aType;
+		move = aMove;
 	}
 	
-	public Message(int id,Point point, String text, TypeMsg type) {
+	public Message(int id,Point point, TypeMsg type, Move aMove) {
 		super();
 		this.point = point;
-		this.text = text;
 		this.type = type;
 		this.id = id;
+		move = aMove;
 	}
 
 	public Point getPoint() {
@@ -37,14 +45,6 @@ public class Message implements Serializable {
 
 	public void setPoint(Point point) {
 		this.point = point;
-	}
-
-	public String getText() {
-		return text;
-	}
-
-	public void setText(String text) {
-		this.text = text;
 	}
 
 	public TypeMsg getType() {
@@ -80,16 +80,36 @@ public class Message implements Serializable {
 		bfr.append("Type: ");
 		bfr.append(type);
 		bfr.append(";");
-		if (text != null) {
-			bfr.append(text);
-			bfr.append(";");
-		}
+		
 		if (point != null) {
 			bfr.append(point.toString());
 		}
-		if (board != null) {
-			bfr.append("BOARD");
+		if (enemyPoints != null && !enemyPoints.isEmpty()) {
+			bfr.append("Points:");
+			for (Map.Entry<Point, FieldType> entry : enemyPoints.entrySet()) {
+				bfr.append(entry.getKey().toString());
+				bfr.append("-");
+				bfr.append(entry.getValue().toString());
+				bfr.append(",");
+			}
 		}
+		
 		return bfr.toString();
 	}
+
+	public HashMap<Point, FieldType> getEnemyPoints() {
+		return enemyPoints;
+	}
+
+	public void setEnemyPoints(HashMap<Point, FieldType> enemyPoints) {
+		this.enemyPoints = enemyPoints;
+	}
+
+	public Move getMove() {
+		return move;
+	}
+
+	public void setMove(Move move) {
+		this.move = move;
+	}	
 }

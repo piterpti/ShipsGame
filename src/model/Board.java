@@ -1,7 +1,9 @@
 package model;
 
 import java.io.Serializable;
+import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.Map;
 import java.util.logging.Logger;
 
 public class Board implements Serializable{
@@ -61,12 +63,15 @@ public class Board implements Serializable{
 		putShips();
 	}
 	
-	public void checkIsShipHit(Point point) {
+	public HashMap<Point, FieldType> checkIsShipHit(Point point) {
 		FieldType type = fields[point.getX()][point.getY()];
+		
+		HashMap<Point, FieldType> resultPoints = new HashMap<>();
 		
 		if (type == FieldType.EMPTY) {
 			
 			fields[point.getX()][point.getY()] = FieldType.SHOOTED;
+			resultPoints.put(point, FieldType.SHOOTED);
 			
 		} else if (type == FieldType.SHIP) {
 			
@@ -77,6 +82,7 @@ public class Board implements Serializable{
 						p.setDamged(true);
 						shipDestroyed = s.liveMinusAndItsDead();
 						fields[p.getX()][p.getY()] = FieldType.DAMAGED;
+						resultPoints.put(p, FieldType.DAMAGED);
 						LOGGER.info("Ship hit on field: " + p.toString());
 					}
 				}
@@ -84,18 +90,22 @@ public class Board implements Serializable{
 				if (shipDestroyed) {
 					for (Point p : s.getShipFields()) {
 						fields[p.getX()][p.getY()] = FieldType.DESTROYED;
+						resultPoints.put(p, FieldType.DESTROYED);
 						LOGGER.info("Ship destroyed:" + s.toString());
 						LinkedList<Point> neihgbours = s.getNeighbourPoints();
 						for (Point shooted : neihgbours) {
 							FieldType neighbour = fields[shooted.getX()][shooted.getY()];
 							if (neighbour == FieldType.EMPTY) {
 								fields[shooted.getX()][shooted.getY()] = FieldType.SHOOTED;
+								resultPoints.put(shooted, FieldType.SHOOTED);
 							}
 						}
 					}
 				}
 			}
 		}
+		
+		return resultPoints;
 	}
 
 	public boolean isMyBoard() {
@@ -104,6 +114,14 @@ public class Board implements Serializable{
 
 	public void setMyBoard(boolean myBoard) {
 		this.myBoard = myBoard;
+	}
+	
+	public void setFieldsTo(HashMap<Point, FieldType> points) {
+		
+		for (Map.Entry<Point, FieldType> entry : points.entrySet()) {
+			fields[entry.getKey().getX()][entry.getKey().getY()] = entry.getValue();
+		}
+		
 	}
 	
 	

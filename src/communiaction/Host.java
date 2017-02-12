@@ -8,7 +8,9 @@ import java.io.ObjectOutputStream;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import communiaction.Message.TypeMsg;
 import game.Game;
+import game.Game.Move;
 
 public class Host extends Thread {
 	
@@ -19,14 +21,17 @@ public class Host extends Thread {
 	private ObjectInputStream streamIn = null;
 	private ObjectOutputStream streamOut;
 	
+	private Move startMove;
+	
 	private boolean endGame = false;
 	
 	private Object lock = new Object();
 	
 	private Message receivedMsg = null;
 	
-	public Host(int aPort) {
+	public Host(int aPort, Move aStartMove) {
 		port = aPort;
+		startMove = aStartMove;
 		configureServer();
 	}
 	
@@ -54,16 +59,17 @@ public class Host extends Thread {
 				LOGGER.info("Waiting for client connection");
 				socket = hostServer.accept();
 				LOGGER.info("Client accepted: " + socket.toString());
-				streamOut  = new ObjectOutputStream(socket.getOutputStream());
 				
+				streamOut  = new ObjectOutputStream(socket.getOutputStream());
 				streamIn = new ObjectInputStream((socket.getInputStream()));
+				
+				streamOut.writeObject(new Message(TypeMsg.WELCOME, startMove));
 				
 				
 				while (!endGame) {
 					synchronized (lock) {
 						receivedMsg = (Message) streamIn.readObject();
 						LOGGER.info("Message from client: " + receivedMsg.toString());
-						receivedMsg = null;
 					}
 					Game.hostRecMsg();
 					receivedMsg = null;
