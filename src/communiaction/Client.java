@@ -19,9 +19,13 @@ public class Client extends Thread {
 	
 	private Message receivedMsg = null;
 	
+	private boolean gameEnd = false;
+	
+	private boolean hostFound = false;
+	
 	public Client() {
 		try {
-			socket = new Socket("localhost", ConnectionConfig.PORT);	
+			socket = new Socket(ConnectionConfig.HOST, ConnectionConfig.PORT);	
 		} catch (IOException e) {
 			LOGGER.warning("Problem with creating socket on port " + ConnectionConfig.PORT + ": " + e.toString());
 		}
@@ -32,13 +36,17 @@ public class Client extends Thread {
 		streamIn = new ObjectInputStream(socket.getInputStream());
    }
 	
-	private void closeConn() {
+	public void closeConn() {
 		try {
+			LOGGER.info("Closing connection - closeConn()");
 		if (streamIn != null) {
 			streamIn.close();
 		} 
 		if (streamOut != null) {
 			streamOut.close();
+		}
+		if (socket != null) {
+			socket.close();
 		}
 		} catch (IOException e) {
 			LOGGER.warning("Problem when closing streams: " + e.toString());
@@ -49,24 +57,35 @@ public class Client extends Thread {
 	public void run() {
 		
 		try {
-			startConn();
+			long counter = 0;
+			while (socket == null) {
+				try {
+					socket = new Socket(ConnectionConfig.HOST, ConnectionConfig.PORT);
+					counter++;
+				} catch (IOException e) {
+					if (counter % 20 == 0) {
+						LOGGER.warning("Connection problem");
+					}
+				}
+				Thread.sleep(50);
+			}
 			
-			boolean gameEnd = false;
+			startConn();
+			setHostFound(true);
 			
 			while (!gameEnd) {
 				synchronized (lock) {
 					receivedMsg = (Message) streamIn.readObject();
 					LOGGER.info("Recived message from host: " + receivedMsg.toString());
-					
 				}
 				Game.clientRecMsg();
 				receivedMsg = null;
-			}
-			
-			closeConn();
+			}	
 		}
 		catch (Exception e) {
 			LOGGER.warning("Problem with connection on port " + ConnectionConfig.PORT + ": " + e.toString());
+		} finally {
+			closeConn();
 		}
 	}
 	
@@ -83,5 +102,19 @@ public class Client extends Thread {
 		synchronized (lock) {
 			return receivedMsg;
 		}
+	}
+	
+	public void setGameEnd(boolean aGameEnd) {
+		gameEnd = aGameEnd;
+	}
+	
+	public boolean isHostFouond() {
+		synchronized (lock) {
+			return hostFound;
+		}
+	}
+	
+	public void setHostFound(boolean aHostFound) {
+		hostFound = aHostFound;
 	}
 }

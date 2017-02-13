@@ -46,7 +46,6 @@ public class NetworkType extends JFrame {
 			public void actionPerformed(ActionEvent e) {
 				Main.gameType = GameType.CLIENT;
 				Main.gameFrame = new Game();
-				Main.gameFrame.setVisible(true);
 				dispose();
 			}
 		});

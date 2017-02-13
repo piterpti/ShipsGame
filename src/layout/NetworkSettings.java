@@ -92,7 +92,6 @@ public class NetworkSettings extends JFrame {
 					
 					Main.gameType = GameType.HOST;
 					Main.gameFrame = new Game();
-					Main.gameFrame.setVisible(true);
 					dispose();
 				}
 			}

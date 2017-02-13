@@ -20,6 +20,7 @@ import communiaction.Message;
 import communiaction.Message.TypeMsg;
 import game.Main.GameType;
 import layout.BoardPanel;
+import layout.WaitFrame;
 import model.Board;
 import model.FieldType;
 import model.Point;
@@ -131,7 +132,7 @@ public class Game extends JFrame {
 		
 		add(panel);
 		this.pack();
-		this.setVisible(true);
+//		this.setVisible(true);
 	}
 	
 	
@@ -152,13 +153,77 @@ public class Game extends JFrame {
 	private void initClient() {
 		client = new Client();
 		client.start();
+		
+		this.setVisible(false);
+		
+		WaitFrame wfr = new WaitFrame("Searching connection..");
+		wfr.setVisible(true);
+		Runnable r = new Runnable() {
+			
+			@Override
+			public void run() {
+				while (true) {
+					if (client.isHostFouond()) {
+						break;
+					}
+					
+					try {
+						Thread.sleep(50);
+					} catch (InterruptedException e) {
+						LOGGER.warning("Problem with interrupting thread..");
+					}
+				}
+				
+				LOGGER.fine("Connected to host - game starting");
+				startClientGame();
+			}
+		};
+		
+		Thread threadWait = new Thread(r);
+		threadWait.start();
 	}
 	
 	private void initHost() {
 		lossPlayer();
 		host = new Host(ConnectionConfig.PORT, move);
 		host.start();
+		
+		this.setVisible(false);
+		WaitFrame wfr = new WaitFrame("Waiting for client");
+		wfr.setVisible(true);
+		Runnable r = new Runnable() {
+			
+			@Override
+			public void run() {
+				while (true) {
+					
+					if (host.isClientAccepted()) {
+						break;
+					}
+					
+					try {
+						Thread.sleep(10);
+					} catch (InterruptedException e) {
+						LOGGER.warning("Problem with interrupting thread..");
+					}
+				}
+				LOGGER.fine("Client connected successful - game starting");
+				startHostGame();
+			}
+		};
+		
+		Thread wait = new Thread(r);
+		wait.start();
+		
+	}
+	
+	private void startHostGame() {
+		setVisible(true);
 		setTurnText();
+	}
+	
+	private void startClientGame() {
+		setVisible(true);
 	}
 	
 	public static void refreshPanels() {
@@ -188,7 +253,7 @@ public class Game extends JFrame {
 						Message endMsg = new Message(TypeMsg.END, move);
 						host.sendMessage(endMsg);
 						
-						endGame(true);
+						endGame(false);
 						
 					} else {
 						Message sendMsg = new Message(recMsg.getId() + 1, null, TypeMsg.POINTS, move);
@@ -325,6 +390,15 @@ public class Game extends JFrame {
 	}
 	
 	private static void endGame(boolean win) {
+		
+		if (Main.gameType == GameType.CLIENT) {
+			client.setGameEnd(true);
+			client.closeConn();
+		}
+		if (Main.gameType == GameType.HOST) {
+			host.setEndGame(true);
+			host.close();
+		}
 		
 		if (win) {
 			JOptionPane.showMessageDialog(null, "You win!");

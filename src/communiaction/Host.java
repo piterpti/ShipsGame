@@ -27,6 +27,8 @@ public class Host extends Thread {
 	
 	private Object lock = new Object();
 	
+	private boolean clientAccepted = false;
+	
 	private Message receivedMsg = null;
 	
 	public Host(int aPort, Move aStartMove) {
@@ -53,29 +55,30 @@ public class Host extends Thread {
 			return;
 		}
 		
-		while (true) {
+		while (true && !endGame) {
 			
 			try {
 				LOGGER.info("Waiting for client connection");
 				socket = hostServer.accept();
 				LOGGER.info("Client accepted: " + socket.toString());
 				
+				setClientAccepted(true);
+				
 				streamOut  = new ObjectOutputStream(socket.getOutputStream());
 				streamIn = new ObjectInputStream((socket.getInputStream()));
 				
 				streamOut.writeObject(new Message(TypeMsg.WELCOME, startMove));
-				
 				
 				while (!endGame) {
 					synchronized (lock) {
 						receivedMsg = (Message) streamIn.readObject();
 						LOGGER.info("Message from client: " + receivedMsg.toString());
 					}
+					
 					Game.hostRecMsg();
 					receivedMsg = null;
+					
 				}
-				
-				close();
 				
 			} catch (Exception e) {
 				LOGGER.warning("Communication problem: " + e.toString());
@@ -83,17 +86,25 @@ public class Host extends Thread {
 		}
 	}
 	
-	private void close() throws IOException {
-		if (socket != null) {
-			socket.close();
-		}
-		
-		if (streamIn != null) {
-			streamIn.close();
-		}
-		
-		if (streamOut != null) {
-			streamOut.close();
+	public void close()  {
+		LOGGER.info("Closing connection");
+		try {
+			if (socket != null) {
+				socket.close();
+			}
+			if (hostServer != null) {
+				hostServer.close();
+			}
+			
+			if (streamIn != null) {
+				streamIn.close();
+			}
+			
+			if (streamOut != null) {
+				streamOut.close();
+			}
+		} catch (IOException e) {
+			LOGGER.warning("Problem with closing resources");
 		}
 	}
 	
@@ -122,5 +133,17 @@ public class Host extends Thread {
 	
 	public void setEndGame(boolean aEndGame) {
 		endGame = aEndGame;
+	}
+	
+	public boolean isClientAccepted() {
+		synchronized (lock) {
+			return clientAccepted;
+		}
+	}
+	
+	public void setClientAccepted(boolean result) {
+		synchronized (lock) {
+			clientAccepted = result;
+		}
 	}
 }

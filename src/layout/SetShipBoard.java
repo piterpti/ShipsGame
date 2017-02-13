@@ -1,62 +1,48 @@
 package layout;
 
+import static constants.Constants.LOGGER;
+
 import java.awt.BorderLayout;
-import java.awt.Color;
 import java.awt.Cursor;
 import java.awt.GridLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.LinkedList;
-import java.util.logging.Logger;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SwingConstants;
 
-import communiaction.Message;
-import communiaction.Message.TypeMsg;
 import components.FieldLabel;
 import constants.Constants;
 import game.Game;
-import game.Main;
-import game.Main.GameType;
+import layout.BoardPanel.FieldClick;
 import model.Board;
 import model.FieldType;
-import model.Point;
 
-import static constants.Constants.LOGGER;
-
-public class BoardPanel extends JPanel {
-	
-	private final static Cursor DEFAULT_CUROSR = new Cursor(Cursor.DEFAULT_CURSOR);
-	private final static Cursor HAND_CUROSR = new Cursor(Cursor.HAND_CURSOR);
+public class SetShipBoard extends JPanel {
 
 	private static final long serialVersionUID = 1L;
 	
-	private LinkedList<FieldLabel> fields;
+	private final static Cursor DEFAULT_CUROSR = new Cursor(Cursor.DEFAULT_CURSOR);
+	private final static Cursor HAND_CUROSR = new Cursor(Cursor.HAND_CURSOR);
 	
 	private JPanel fieldPanel;
+	private LinkedList<FieldLabel> fields;
 	private JLabel boardNameLabel;
 	
-	private boolean enemy = false;
-
-	public BoardPanel(boolean aEnemy, String boardName) {
+	
+	public SetShipBoard() {
 		super(new BorderLayout());
 		fieldPanel = new JPanel(new GridLayout(11, 11));
 		
 		fields = new LinkedList<>();
-		enemy = aEnemy;
 		addLabels();
 		add(fieldPanel, BorderLayout.CENTER);
 		
-		boardNameLabel = new JLabel(boardName);
+		boardNameLabel = new JLabel("Set your ships!");
 		boardNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		add(boardNameLabel, BorderLayout.NORTH);
-		if (aEnemy) {
-			boardNameLabel.setForeground(Color.RED);
-		} else {
-			boardNameLabel.setForeground(new Color(0, 131, 2));
-		}
 	}
 	
 	private void addLabels() {
@@ -91,10 +77,6 @@ public class BoardPanel extends JPanel {
 	private void addLabel(FieldLabel label) {
 		fieldPanel.add(label);
 		fields.add(label);
-	}
-	
-	public void setEnemy(boolean aEnemy) {
-		enemy = aEnemy;
 	}
 	
 	public void refresh(Board board) {
@@ -149,29 +131,6 @@ public class BoardPanel extends JPanel {
 		}
 	}
 	
-	public FieldLabel findLabelWithCords(int xp, int yp) {
-		FieldLabel label = new FieldLabel(xp, yp);
-		for (FieldLabel fl : fields) {
-			if (label.equals(fl)) {
-				return fl;
-			}
-		}
-		return null;
-	}
-	
-	public void handleClickEvent(FieldLabel clicked) {
-
-		Point clickedPoint = new Point(clicked.getxPos(), clicked.getyPos());	
-		if (Main.gameType == GameType.HOST || Main.gameType == GameType.CLIENT) {
-			Message msg = new Message(1, clickedPoint, TypeMsg.ATTACK, Game.move);
-			Game.move(msg);
-		} else if (Main.gameType == GameType.USER_VS_COMPUTER) {
-			Game.userMove(clickedPoint);
-		}
-		
-		setCursor(DEFAULT_CUROSR);
-	}
-
 	class FieldClick implements MouseListener {
 
 		@Override
@@ -181,13 +140,7 @@ public class BoardPanel extends JPanel {
 
 		@Override
 		public void mouseEntered(MouseEvent e) {
-			if (enemy && Game.isYourMove()) {
-				FieldLabel label = (FieldLabel) e.getComponent();
-				if (label.getFieldType() == FieldType.EMPTY ||
-						label.getFieldType() == FieldType.SHIP) {
-					setCursor(HAND_CUROSR);
-				}
-			}
+	
 		}
 
 		@Override
@@ -202,25 +155,8 @@ public class BoardPanel extends JPanel {
 
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			FieldLabel label = (FieldLabel) e.getComponent();
-			if (Game.isYourMove() && enemy) {
-				handleClickEvent(label);
-			}
-			logClick(label);
+			
 		}
 	}
 	
-	private void logClick(FieldLabel label) {
-		StringBuffer buffer = new StringBuffer();
-		buffer.append("User click on ");
-		buffer.append(label.getxPos());
-		buffer.append("x");
-		buffer.append(label.getyPos());
-		if (enemy) {
-			buffer.append(" enemy board");
-		} else {
-			buffer.append(" own board");
-		}
-		LOGGER.info(buffer.toString());
-	}
 }
