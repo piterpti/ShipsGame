@@ -154,33 +154,7 @@ public class Game extends JFrame {
 		client = new Client();
 		client.start();
 		
-		this.setVisible(false);
-		
-		WaitFrame wfr = new WaitFrame("Searching connection..");
-		wfr.setVisible(true);
-		Runnable r = new Runnable() {
-			
-			@Override
-			public void run() {
-				while (true) {
-					if (client.isHostFouond()) {
-						break;
-					}
-					
-					try {
-						Thread.sleep(50);
-					} catch (InterruptedException e) {
-						LOGGER.warning("Problem with interrupting thread..");
-					}
-				}
-				
-				LOGGER.fine("Connected to host - game starting");
-				startClientGame();
-			}
-		};
-		
-		Thread threadWait = new Thread(r);
-		threadWait.start();
+		setVisible(true);
 	}
 	
 	private void initHost() {
@@ -188,43 +162,11 @@ public class Game extends JFrame {
 		host = new Host(ConnectionConfig.PORT, move);
 		host.start();
 		
-		this.setVisible(false);
-		WaitFrame wfr = new WaitFrame("Waiting for client");
-		wfr.setVisible(true);
-		Runnable r = new Runnable() {
-			
-			@Override
-			public void run() {
-				while (true) {
-					
-					if (host.isClientAccepted()) {
-						break;
-					}
-					
-					try {
-						Thread.sleep(10);
-					} catch (InterruptedException e) {
-						LOGGER.warning("Problem with interrupting thread..");
-					}
-				}
-				LOGGER.fine("Client connected successful - game starting");
-				startHostGame();
-			}
-		};
-		
-		Thread wait = new Thread(r);
-		wait.start();
-		
-	}
-	
-	private void startHostGame() {
-		setVisible(true);
 		setTurnText();
-	}
-	
-	private void startClientGame() {
+		
 		setVisible(true);
 	}
+	
 	
 	public static void refreshPanels() {
 		synchronized (lock) {

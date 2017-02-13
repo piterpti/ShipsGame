@@ -41,6 +41,7 @@ public class WaitFrame extends JFrame {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
+				dispose();
 				Main.endGame();
 			}
 		});

@@ -21,7 +21,6 @@ public class Client extends Thread {
 	
 	private boolean gameEnd = false;
 	
-	private boolean hostFound = false;
 	
 	public Client() {
 		try {
@@ -57,21 +56,8 @@ public class Client extends Thread {
 	public void run() {
 		
 		try {
-			long counter = 0;
-			while (socket == null) {
-				try {
-					socket = new Socket(ConnectionConfig.HOST, ConnectionConfig.PORT);
-					counter++;
-				} catch (IOException e) {
-					if (counter % 20 == 0) {
-						LOGGER.warning("Connection problem");
-					}
-				}
-				Thread.sleep(50);
-			}
-			
+					
 			startConn();
-			setHostFound(true);
 			
 			while (!gameEnd) {
 				synchronized (lock) {
@@ -87,6 +73,8 @@ public class Client extends Thread {
 		} finally {
 			closeConn();
 		}
+		
+		LOGGER.info("Client thread ended work");
 	}
 	
 	public void sendMessage(Message msg) {
@@ -106,15 +94,5 @@ public class Client extends Thread {
 	
 	public void setGameEnd(boolean aGameEnd) {
 		gameEnd = aGameEnd;
-	}
-	
-	public boolean isHostFouond() {
-		synchronized (lock) {
-			return hostFound;
-		}
-	}
-	
-	public void setHostFound(boolean aHostFound) {
-		hostFound = aHostFound;
 	}
 }

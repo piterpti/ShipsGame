@@ -27,8 +27,6 @@ public class Host extends Thread {
 	
 	private Object lock = new Object();
 	
-	private boolean clientAccepted = false;
-	
 	private Message receivedMsg = null;
 	
 	public Host(int aPort, Move aStartMove) {
@@ -62,8 +60,6 @@ public class Host extends Thread {
 				socket = hostServer.accept();
 				LOGGER.info("Client accepted: " + socket.toString());
 				
-				setClientAccepted(true);
-				
 				streamOut  = new ObjectOutputStream(socket.getOutputStream());
 				streamIn = new ObjectInputStream((socket.getInputStream()));
 				
@@ -84,6 +80,8 @@ public class Host extends Thread {
 				LOGGER.warning("Communication problem: " + e.toString());
 			}
 		}
+		
+		LOGGER.info("Host thread ended work");
 	}
 	
 	public void close()  {
@@ -133,17 +131,5 @@ public class Host extends Thread {
 	
 	public void setEndGame(boolean aEndGame) {
 		endGame = aEndGame;
-	}
-	
-	public boolean isClientAccepted() {
-		synchronized (lock) {
-			return clientAccepted;
-		}
-	}
-	
-	public void setClientAccepted(boolean result) {
-		synchronized (lock) {
-			clientAccepted = result;
-		}
 	}
 }
