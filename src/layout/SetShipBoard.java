@@ -15,8 +15,6 @@ import javax.swing.SwingConstants;
 
 import components.FieldLabel;
 import constants.Constants;
-import game.Game;
-import layout.BoardPanel.FieldClick;
 import model.Board;
 import model.FieldType;
 
@@ -25,7 +23,7 @@ public class SetShipBoard extends JPanel {
 	private static final long serialVersionUID = 1L;
 	
 	private final static Cursor DEFAULT_CUROSR = new Cursor(Cursor.DEFAULT_CURSOR);
-	private final static Cursor HAND_CUROSR = new Cursor(Cursor.HAND_CURSOR);
+//	private final static Cursor HAND_CUROSR = new Cursor(Cursor.HAND_CURSOR);
 	
 	private JPanel fieldPanel;
 	private LinkedList<FieldLabel> fields;
@@ -42,8 +40,11 @@ public class SetShipBoard extends JPanel {
 		
 		boardNameLabel = new JLabel("Set your ships!");
 		boardNameLabel.setHorizontalAlignment(SwingConstants.CENTER);
+		
 		add(boardNameLabel, BorderLayout.NORTH);
 	}
+	
+	
 	
 	private void addLabels() {
 		FieldLabel emptyLabel = new FieldLabel();
@@ -99,6 +100,7 @@ public class SetShipBoard extends JPanel {
 					fl.setLook(Constants.DESTROYED_COLOR, "X");
 					break;
 				case EMPTY:
+					fl.setLook(Constants.WATER_COLOR, "");
 					break;
 				case SHOOTED:
 					fl.setLook(Constants.SHOOTED_COLOR, ".");

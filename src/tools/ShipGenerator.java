@@ -21,19 +21,21 @@ public class ShipGenerator {
 		LOGGER.info("Generating ships just started..");
 		long startTime = System.currentTimeMillis();
 		
-//		ships.add(generateShip(4, lockFields));
-//		
-//		ships.add(generateShip(3, lockFields));
-//		ships.add(generateShip(3, lockFields));
-//		
-//		ships.add(generateShip(2, lockFields));
-//		ships.add(generateShip(2, lockFields));
-//		ships.add(generateShip(2, lockFields));
-//		
-//		ships.add(generateShip(1, lockFields));
-//		ships.add(generateShip(1, lockFields));
-//		ships.add(generateShip(1, lockFields));
+		ships.add(generateShip(4, lockFields));
+		
+		ships.add(generateShip(3, lockFields));
+		ships.add(generateShip(3, lockFields));
+		
+		ships.add(generateShip(2, lockFields));
+		ships.add(generateShip(2, lockFields));
+		ships.add(generateShip(2, lockFields));
+		
 		ships.add(generateShip(1, lockFields));
+		ships.add(generateShip(1, lockFields));
+		ships.add(generateShip(1, lockFields));
+		ships.add(generateShip(1, lockFields));
+		
+		
 		
 		long opertaionTime = System.currentTimeMillis() - startTime;
 		

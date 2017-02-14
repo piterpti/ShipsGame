@@ -7,7 +7,6 @@ import java.awt.event.ActionListener;
 import javax.swing.JFrame;
 
 import components.MenuButton;
-import game.Game;
 import game.Main;
 import game.Main.GameType;
 
@@ -45,7 +44,7 @@ public class NetworkType extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Main.gameType = GameType.CLIENT;
-				Main.gameFrame = new Game();
+				Main.startGame();
 				dispose();
 			}
 		});

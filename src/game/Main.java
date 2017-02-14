@@ -7,6 +7,7 @@ import javax.swing.SwingUtilities;
 import communiaction.ConnectionConfig;
 import layout.MainMenu;
 import layout.NetworkType;
+import layout.SetShips;
 import logger.MyLogger;
 
 /*
@@ -47,13 +48,8 @@ public class Main {
 		});
 	}
 	
-	public static void startGame() {
-		gameType = GameType.USER_VS_COMPUTER;		
-		
-		gameFrame = new Game();
-		gameFrame.setVisible(true);
-		
-		mainMenu.setVisible(false);
+	public static void startGameComputer() {
+		gameType = GameType.USER_VS_COMPUTER;
 	}
 	
 	public static void backToMenu() {
@@ -84,5 +80,14 @@ public class Main {
 		}
 		
 		mainMenu.setVisible(true);
+	}
+	
+	public static void startGame() {
+		gameFrame = new Game();
+		gameFrame.setVisible(false);
+		mainMenu.setVisible(false);
+		
+		SetShips setShips = new SetShips(gameFrame);
+		setShips.setVisible(true);
 	}
 }

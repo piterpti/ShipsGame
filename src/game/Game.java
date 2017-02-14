@@ -20,7 +20,6 @@ import communiaction.Message;
 import communiaction.Message.TypeMsg;
 import game.Main.GameType;
 import layout.BoardPanel;
-import layout.WaitFrame;
 import model.Board;
 import model.FieldType;
 import model.Point;
@@ -65,9 +64,11 @@ public class Game extends JFrame {
 			ENEMY_BOARD = new Board();
 			ENEMY_BOARD.setMyBoard(false);
 			
-			MY_BOARD = new Board();
-			MY_BOARD.setMyBoard(true);
-			ShipGenerator.generateShips(MY_BOARD);
+			if (MY_BOARD == null) {
+				MY_BOARD = new Board();
+				MY_BOARD.setMyBoard(true);
+				ShipGenerator.generateShips(MY_BOARD);
+			}
 		}
 		
 		switch (Main.gameType) {
@@ -154,7 +155,7 @@ public class Game extends JFrame {
 		client = new Client();
 		client.start();
 		
-		setVisible(true);
+//		setVisible(true);
 	}
 	
 	private void initHost() {
@@ -164,7 +165,7 @@ public class Game extends JFrame {
 		
 		setTurnText();
 		
-		setVisible(true);
+//		setVisible(true);
 	}
 	
 	
@@ -331,6 +332,18 @@ public class Game extends JFrame {
 		return true;
 	}
 	
+	private static boolean checkEnemyLose(Board b) {
+		FieldType[][] fields = b.getFields();
+		for (int y = 0; y < 10; y++) {
+			for (int x = 0; x < 10; x++) {
+				if (fields[x][y] == FieldType.SHIP) {
+					return false;
+				}
+			}
+		}
+		return true;
+	}
+	
 	private static void endGame(boolean win) {
 		
 		if (Main.gameType == GameType.CLIENT) {
@@ -373,16 +386,20 @@ public class Game extends JFrame {
 				move = Move.USER;
 			} else {
 				move = Move.BOT;
-				botTurn();
 			}
 			
+			refreshPanels();
 			if (checkLose(false)) {
 				endGame(false);
+			}
+			else if (checkEnemyLose(ENEMY_BOARD)) {
+				endGame(true);
+			} else if (move == Move.BOT) {
+				botTurn();
 			}
 		}
 		
 		setTurnText();
-		refreshPanels();
 	}
 	
 	static class BotTurn implements Runnable {
@@ -404,8 +421,12 @@ public class Game extends JFrame {
 				}
 				Point toAttack = enemy.nextTurn();
 				HashMap<Point, FieldType> points = MY_BOARD.checkIsShipHit(toAttack);
+				refreshPanels();
 				if (checkLose(true)) {
 					endGame(true);
+				}
+				else if (checkEnemyLose(MY_BOARD)) {
+					endGame(false);
 				}
 				if (points == null) {
 					break;
@@ -415,11 +436,15 @@ public class Game extends JFrame {
 				} else {
 					move = Move.USER;
 				}			
-				refreshPanels();
 			}
 	
 			setTurnText();
 		}
 		
+	}
+	
+	public void setMyBoard(Board b) {
+		MY_BOARD = b;
+		refreshPanels();
 	}
 }

@@ -29,11 +29,14 @@ public class Board implements Serializable{
 		clear();
 	}
 	
-	private void clear() {
+	public void clear() {
 		for (int y = 0; y < 10; y++) {
 			for (int x = 0; x < 10; x++) {
 				fields[x][y] = FieldType.EMPTY;
 			}
+		}
+		if (ships != null) {
+			ships.clear();
 		}
 	}
 	

@@ -13,7 +13,6 @@ import javax.swing.SwingConstants;
 import communiaction.ConnectionConfig;
 import components.MenuButton;
 import constants.Constants;
-import game.Game;
 import game.Main;
 import game.Main.GameType;
 
@@ -91,7 +90,7 @@ public class NetworkSettings extends JFrame {
 					errorLabel.setText("");
 					
 					Main.gameType = GameType.HOST;
-					Main.gameFrame = new Game();
+					Main.startGame();
 					dispose();
 				}
 			}

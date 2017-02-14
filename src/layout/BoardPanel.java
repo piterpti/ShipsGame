@@ -1,5 +1,7 @@
 package layout;
 
+import static constants.Constants.LOGGER;
+
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Cursor;
@@ -7,7 +9,6 @@ import java.awt.GridLayout;
 import java.awt.event.MouseEvent;
 import java.awt.event.MouseListener;
 import java.util.LinkedList;
-import java.util.logging.Logger;
 
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -23,8 +24,6 @@ import game.Main.GameType;
 import model.Board;
 import model.FieldType;
 import model.Point;
-
-import static constants.Constants.LOGGER;
 
 public class BoardPanel extends JPanel {
 	
@@ -117,6 +116,7 @@ public class BoardPanel extends JPanel {
 					fl.setLook(Constants.DESTROYED_COLOR, "X");
 					break;
 				case EMPTY:
+					fl.setLook(Constants.WATER_COLOR, "");
 					break;
 				case SHOOTED:
 					fl.setLook(Constants.SHOOTED_COLOR, ".");

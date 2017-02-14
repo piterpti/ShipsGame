@@ -10,7 +10,7 @@ import model.FieldType;
 import model.Point;
 import model.Ship;
 
-public class Bot extends Enemy{
+public class Bot extends Enemy {
 
 	public Bot() {
 		super();
