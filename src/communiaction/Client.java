@@ -16,14 +16,19 @@ public class Client extends Thread {
 	private ObjectInputStream streamIn;
 	
 	private Object lock = new Object();
+	private Object connectionLock = new Object();
 	
 	private Message receivedMsg = null;
 	
 	private boolean gameEnd = false;
+	private boolean connected = false;
+	
+	private Game game;
 	
 	
-	public Client() {
+	public Client(Game aGame) {
 		try {
+			game = aGame;
 			socket = new Socket(ConnectionConfig.HOST, ConnectionConfig.PORT);	
 		} catch (IOException e) {
 			LOGGER.warning("Problem with creating socket on port " + ConnectionConfig.PORT + ": " + e.toString());
@@ -56,20 +61,38 @@ public class Client extends Thread {
 	public void run() {
 		
 		try {
-					
+			
+			int counter = 0;
+			while (socket == null) {
+				try {
+				Thread.sleep(100);
+				socket = new Socket(ConnectionConfig.HOST, ConnectionConfig.PORT);
+				counter++;
+				
+				
+				} catch (Exception ignored) {
+					if (counter % 10 == 0) {
+						LOGGER.info("Host not found");
+					}
+				}
+			}
+			
 			startConn();
+			
+			setConnected(true);
 			
 			while (!gameEnd) {
 				synchronized (lock) {
 					receivedMsg = (Message) streamIn.readObject();
 					LOGGER.info("Recived message from host: " + receivedMsg.toString());
 				}
-				Game.clientRecMsg();
+				game.clientRecMsg();
 				receivedMsg = null;
 			}	
 		}
 		catch (Exception e) {
 			LOGGER.warning("Problem with connection on port " + ConnectionConfig.PORT + ": " + e.toString());
+			e.printStackTrace();
 		} finally {
 			closeConn();
 		}
@@ -94,5 +117,17 @@ public class Client extends Thread {
 	
 	public void setGameEnd(boolean aGameEnd) {
 		gameEnd = aGameEnd;
+	}
+	
+	private void setConnected(boolean aConnected) {
+		synchronized (connectionLock) {
+			connected = aConnected;
+		}
+	}
+	
+	public boolean isConnected() {
+		synchronized (connectionLock) {
+			return connected;
+		}
 	}
 }

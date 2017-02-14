@@ -20,6 +20,7 @@ import communiaction.Message;
 import communiaction.Message.TypeMsg;
 import game.Main.GameType;
 import layout.BoardPanel;
+import layout.WaitFrame;
 import model.Board;
 import model.FieldType;
 import model.Point;
@@ -29,18 +30,22 @@ public class Game extends JFrame {
 
 	private static final long serialVersionUID = 1L;
 	
-	public static Board MY_BOARD;
-	public static Board ENEMY_BOARD;
+	private Board MY_BOARD;
+	private Board ENEMY_BOARD;
 	
-	public static Object lock = new Object();
+	private Object lock = new Object();
+	private Object moveLock = new Object();
 	
-	private static BoardPanel myPanel;
-	private static BoardPanel enemyPanel;
 	
-	private static Host host;
-	private static Client client;
+	private BoardPanel myPanel;
+	private BoardPanel enemyPanel;
 	
-	private static Bot enemy;
+	private Host host;
+	private Client client;
+	
+	private WaitFrame waitFrame;
+	
+	private Bot enemy;
 	
 	public enum Move {
 		HOST,
@@ -49,9 +54,9 @@ public class Game extends JFrame {
 		BOT
 	}
 	
-	public static Move move = Move.HOST;
+	private Move move = Move.HOST;
 	
-	private static JLabel movementLabel = new JLabel("Turn: ");
+	private JLabel movementLabel = new JLabel("Turn: ");
 	
 	public Game() {
 		initComponents();
@@ -60,15 +65,13 @@ public class Game extends JFrame {
 	
 	private void initGame() {
 		
-		synchronized (lock) {
-			ENEMY_BOARD = new Board();
-			ENEMY_BOARD.setMyBoard(false);
-			
-			if (MY_BOARD == null) {
-				MY_BOARD = new Board();
-				MY_BOARD.setMyBoard(true);
-				ShipGenerator.generateShips(MY_BOARD);
-			}
+		ENEMY_BOARD = new Board();
+		ENEMY_BOARD.setMyBoard(false);
+		
+		if (MY_BOARD == null) {
+			MY_BOARD = new Board();
+			MY_BOARD.setMyBoard(true);
+			ShipGenerator.generateShips(MY_BOARD);
 		}
 		
 		switch (Main.gameType) {
@@ -80,6 +83,7 @@ public class Game extends JFrame {
 			initClient();
 			break;
 		case USER_VS_COMPUTER:
+			setVisible(true);
 			initBot();
 			break;
 		}
@@ -91,9 +95,9 @@ public class Game extends JFrame {
 	private void lossPlayer() {
 		Random random = new Random();
 		if (Main.gameType == GameType.HOST) {
-			move = random.nextInt(2) == 0 ? Move.CLIENT : Move.HOST;
+			setMove(random.nextInt(2) == 0 ? Move.CLIENT : Move.HOST);
 		} else if (Main.gameType == GameType.USER_VS_COMPUTER) {
-			move = random.nextInt(2) == 0 ? Move.USER : Move.BOT;
+			setMove(random.nextInt(2) == 0 ? Move.USER : Move.BOT);
 		}
 	}
 
@@ -102,8 +106,8 @@ public class Game extends JFrame {
 		this.setTitle("Ships game");
 		this.setResizable(false);
 		
-		myPanel = new BoardPanel(false, "Your board");
-		enemyPanel = new BoardPanel(true, "Enemy board");
+		myPanel = new BoardPanel(this, false, "Your board");
+		enemyPanel = new BoardPanel(this, true, "Enemy board");
 		
 		JPanel panel = new JPanel();
 		GroupLayout layout = new GroupLayout(panel);
@@ -133,11 +137,10 @@ public class Game extends JFrame {
 		
 		add(panel);
 		this.pack();
-//		this.setVisible(true);
 	}
 	
 	
-	public static void move(Message msg) {
+	public void move(Message msg) {
 		switch (Main.gameType) {
 		case HOST:
 			host.sendMessage(msg);
@@ -152,31 +155,78 @@ public class Game extends JFrame {
 	}
 	
 	private void initClient() {
-		client = new Client();
+		client = new Client(this);
 		client.start();
+		setVisible(false);
 		
-//		setVisible(true);
+		waitFrame = new WaitFrame(this, "Connecting to host");
+		waitFrame.setVisible(true);
+		
+		Runnable start = new Runnable() {
+			
+			@Override
+			public void run() {
+				while (!client.isConnected()) {
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						LOGGER.warning("Wait for client thread:" + e.toString());
+					}
+				}
+				LOGGER.fine("Connected to host - closing thread");
+				setVisible(true);
+				waitFrame.dispose();
+				waitFrame = null;
+				
+			}
+		};
+		
+		Thread thr = new Thread(start);
+		thr.start();
 	}
 	
 	private void initHost() {
 		lossPlayer();
-		host = new Host(ConnectionConfig.PORT, move);
+		host = new Host(this, ConnectionConfig.PORT, getMove());
 		host.start();
+		setVisible(false);
+		
+		waitFrame = new WaitFrame(this, "Waiting for player");
+		waitFrame.setVisible(true);
+		
+		Runnable start = new Runnable() {
+			
+			@Override
+			public void run() {
+				while (! host.isClientConnected()) {
+					try {
+						Thread.sleep(1000);
+					} catch (InterruptedException e) {
+						LOGGER.warning("Wait for client thread:" + e.toString());
+					}
+				}
+				LOGGER.fine("Client connected - closing thread");
+				setVisible(true);
+				waitFrame.dispose();
+				waitFrame = null;
+			}
+		};
+		
+		Thread thr = new Thread(start);
+		thr.start();
 		
 		setTurnText();
-		
-//		setVisible(true);
 	}
 	
 	
-	public static void refreshPanels() {
+	public void refreshPanels() {
 		synchronized (lock) {
 			myPanel.refresh(MY_BOARD);
 			enemyPanel.refresh(ENEMY_BOARD);
 		}
 	}
 	
-	public static void hostRecMsg() {
+	public void hostRecMsg() {
 		
 		Message recMsg = host.getMessage();
 			
@@ -186,20 +236,20 @@ public class Game extends JFrame {
 				HashMap<Point, FieldType> points = MY_BOARD.checkIsShipHit(recMsg.getPoint());
 				if (points != null) {
 					if (isShipHitted(points)) {
-						move = Move.CLIENT;
+						setMove(Move.CLIENT);
 					} else {
-						move = Move.HOST;
+						setMove(Move.HOST);
 					}
 					refreshPanels();
 					
 					if (checkLose(false)) {
-						Message endMsg = new Message(TypeMsg.END, move);
+						Message endMsg = new Message(TypeMsg.END, getMove());
 						host.sendMessage(endMsg);
 						
-						endGame(false);
+						endGame(false, false);
 						
 					} else {
-						Message sendMsg = new Message(recMsg.getId() + 1, null, TypeMsg.POINTS, move);
+						Message sendMsg = new Message(recMsg.getId() + 1, null, TypeMsg.POINTS, getMove());
 						sendMsg.setEnemyPoints(points);
 						host.sendMessage(sendMsg);
 					}
@@ -210,11 +260,11 @@ public class Game extends JFrame {
 			case POINTS:
 				ENEMY_BOARD.setFieldsTo(recMsg.getEnemyPoints());
 				refreshPanels();
-				move = recMsg.getMove();
+				setMove(recMsg.getMove());
 				break;
 				
 			case END:
-				endGame(true);
+				endGame(true, false);
 				break;
 				
 			default:
@@ -227,7 +277,7 @@ public class Game extends JFrame {
 		
 	}
 	
-	public static void clientRecMsg() {
+	public void clientRecMsg() {
 		Message recMsg = client.getMessage();
 		
 		switch (recMsg.getType()) {
@@ -235,21 +285,21 @@ public class Game extends JFrame {
 				HashMap<Point, FieldType> points = MY_BOARD.checkIsShipHit(recMsg.getPoint());
 				if (points != null) {
 					if (isShipHitted(points)) {
-						move = Move.HOST;
+						setMove(Move.HOST);
 					} else {
-						move = Move.CLIENT;
+						setMove(Move.CLIENT);
 					}
 					
 					refreshPanels();
 					
 					if (checkLose(false)) {
-						Message endMsg = new Message(TypeMsg.END, move);
+						Message endMsg = new Message(TypeMsg.END, getMove());
 						client.sendMessage(endMsg);
 						
-						endGame(false);
+						endGame(false, false);
 						
 					} else {
-						Message sendMsg = new Message(recMsg.getId() + 1, null, TypeMsg.POINTS, move);
+						Message sendMsg = new Message(recMsg.getId() + 1, null, TypeMsg.POINTS, getMove());
 						sendMsg.setEnemyPoints(points);
 						client.sendMessage(sendMsg);
 					}
@@ -259,16 +309,16 @@ public class Game extends JFrame {
 				
 			case POINTS:
 				ENEMY_BOARD.setFieldsTo(recMsg.getEnemyPoints());
-				move = recMsg.getMove();
+				setMove(recMsg.getMove());
 				refreshPanels();
 				break;
 				
 			case WELCOME:
-				move = recMsg.getMove();
+				setMove(recMsg.getMove());
 				break;
 				
 			case END:
-				endGame(true);
+				endGame(true, false);
 				break;
 				
 			default:
@@ -280,22 +330,22 @@ public class Game extends JFrame {
 		setTurnText();
 	}
 	
-	public static boolean isYourMove() {
-		if (Main.gameType == GameType.HOST && move == Move.HOST) {
+	public boolean isYourMove() {
+		if (Main.gameType == GameType.HOST && getMove() == Move.HOST) {
 			return true;
 		}
-		if (Main.gameType == GameType.CLIENT && move == Move.CLIENT) {
+		if (Main.gameType == GameType.CLIENT && getMove() == Move.CLIENT) {
 			return true;
 		}
 		
-		if (Main.gameType == GameType.USER_VS_COMPUTER && move == Move.USER) {
+		if (Main.gameType == GameType.USER_VS_COMPUTER && getMove() == Move.USER) {
 			return true;
 		}
 		
 		return false;
 	}
 	
-	private static boolean isShipHitted(HashMap<Point, FieldType> points) {
+	private boolean isShipHitted(HashMap<Point, FieldType> points) {
 		for (Map.Entry<Point, FieldType> entry : points.entrySet()) {
 			if (entry.getValue() == FieldType.DAMAGED ||
 					entry.getValue() == FieldType.DESTROYED) {
@@ -305,7 +355,7 @@ public class Game extends JFrame {
 		return false;
 	}
 	
-	private static void setTurnText() {
+	private void setTurnText() {
 		if (isYourMove()) {
 			movementLabel.setText("YOUR TURN");
 		} else {
@@ -313,7 +363,7 @@ public class Game extends JFrame {
 		}
 	}
 	
-	private static boolean checkLose(boolean bot) {
+	private boolean checkLose(boolean bot) {
 		FieldType[][] fields;
 		if (!bot) {
 			fields = MY_BOARD.getFields();
@@ -332,7 +382,7 @@ public class Game extends JFrame {
 		return true;
 	}
 	
-	private static boolean checkEnemyLose(Board b) {
+	private boolean checkEnemyLose(Board b) {
 		FieldType[][] fields = b.getFields();
 		for (int y = 0; y < 10; y++) {
 			for (int x = 0; x < 10; x++) {
@@ -344,7 +394,7 @@ public class Game extends JFrame {
 		return true;
 	}
 	
-	private static void endGame(boolean win) {
+	public void endGame(boolean win, boolean withoutWin) {
 		
 		if (Main.gameType == GameType.CLIENT) {
 			client.setGameEnd(true);
@@ -353,6 +403,10 @@ public class Game extends JFrame {
 		if (Main.gameType == GameType.HOST) {
 			host.setEndGame(true);
 			host.close();
+		}
+		
+		if (withoutWin) {
+			Main.endGame();
 		}
 		
 		if (win) {
@@ -367,34 +421,34 @@ public class Game extends JFrame {
 	
 	private void initBot() {
 		
-		enemy = new Bot();
+		enemy = new Bot(MY_BOARD);
 		ENEMY_BOARD = enemy.getMyBoard();
 		lossPlayer();
 		botTurn();
 	}
 	
-	public static void botTurn() {
+	public void botTurn() {
 		BotTurn botTurn = new BotTurn();
 		Thread t = new Thread(botTurn);
 		t.start();
 	}
 	
-	public static void userMove(Point point) {
+	public void userMove(Point point) {
 		HashMap<Point, FieldType> points = ENEMY_BOARD.checkIsShipHit(point);
 		if (points != null) {
 			if (isShipHitted(points)) {
-				move = Move.USER;
+				setMove(Move.USER);
 			} else {
-				move = Move.BOT;
+				setMove(Move.BOT);
 			}
 			
 			refreshPanels();
 			if (checkLose(false)) {
-				endGame(false);
+				endGame(false, false);
 			}
 			else if (checkEnemyLose(ENEMY_BOARD)) {
-				endGame(true);
-			} else if (move == Move.BOT) {
+				endGame(true, false);
+			} else if (getMove() == Move.BOT) {
 				botTurn();
 			}
 		}
@@ -402,19 +456,19 @@ public class Game extends JFrame {
 		setTurnText();
 	}
 	
-	static class BotTurn implements Runnable {
+	class BotTurn implements Runnable {
 		
 		private int sleepTime = 1000;
 		
 		public BotTurn() {
-			sleepTime = new Random().nextInt(1500) + 1000;
+			sleepTime = new Random().nextInt(300) + 300;
 		}
 		
 		@Override
 		public void run() {
 				while (!isYourMove()) {
 				try {
-					Thread.sleep(5);
+					Thread.sleep(sleepTime);
 					LOGGER.info("Bot thread sleep for " + sleepTime + " ms");
 				} catch (InterruptedException e) {
 					LOGGER.warning("Problem with bot thread interrupting: " + e.toString());
@@ -423,18 +477,18 @@ public class Game extends JFrame {
 				HashMap<Point, FieldType> points = MY_BOARD.checkIsShipHit(toAttack);
 				refreshPanels();
 				if (checkLose(true)) {
-					endGame(true);
+					endGame(true, false);
 				}
 				else if (checkEnemyLose(MY_BOARD)) {
-					endGame(false);
+					endGame(false, false);
 				}
 				if (points == null) {
 					break;
 				}
 				if (isShipHitted(points)) {
-					move = Move.BOT;
+					setMove(Move.BOT);
 				} else {
-					move = Move.USER;
+					setMove(Move.USER);
 				}			
 			}
 	
@@ -445,6 +499,23 @@ public class Game extends JFrame {
 	
 	public void setMyBoard(Board b) {
 		MY_BOARD = b;
+		if (Main.gameType == GameType.USER_VS_COMPUTER) {
+			enemy.setEnemmyBoard(MY_BOARD);
+		}
 		refreshPanels();
 	}
+	
+	public Move getMove() {
+		synchronized (moveLock) {
+			return move;
+		}
+	}
+	
+	public void setMove(Move aMove) {
+		synchronized (moveLock) {
+			move = aMove;
+		}
+	}
+	
+	
 }

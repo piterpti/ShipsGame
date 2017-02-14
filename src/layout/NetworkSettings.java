@@ -90,7 +90,7 @@ public class NetworkSettings extends JFrame {
 					errorLabel.setText("");
 					
 					Main.gameType = GameType.HOST;
-					Main.startGame();
+					Main.setShips();
 					dispose();
 				}
 			}

@@ -12,8 +12,8 @@ import model.Ship;
 
 public class Bot extends Enemy {
 
-	public Bot() {
-		super();
+	public Bot(Board enemeyBoard) {
+		super(enemeyBoard);
 	}
 	
 	public Point nextTurn() {
@@ -32,7 +32,7 @@ public class Bot extends Enemy {
 		return enemmyBoard;
 	}
 
-	public static void setEnemmyBoard(Board enemmyBoard) {
+	public void setEnemmyBoard(Board enemmyBoard) {
 		Bot.enemmyBoard = enemmyBoard;
 	}
 	
@@ -68,7 +68,7 @@ public class Bot extends Enemy {
 				counter++;
 			}
 			
-			LOGGER.info("Computer attak point " + toAttack.toString());
+			LOGGER.info("Computer attack point " + toAttack.toString());
 			return toAttack;
 			
 		} else {

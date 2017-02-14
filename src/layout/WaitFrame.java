@@ -10,7 +10,7 @@ import javax.swing.JFrame;
 import javax.swing.JLabel;
 
 import constants.Constants;
-import game.Main;
+import game.Game;
 
 public class WaitFrame extends JFrame {
 	
@@ -19,7 +19,7 @@ public class WaitFrame extends JFrame {
 	private JButton exitBtn = new JButton("Cancel");
 	private JLabel textLabel;
 	
-	public WaitFrame(String text) {
+	public WaitFrame(Game game,String text) {
 		super();
 		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 		setResizable(false);
@@ -28,27 +28,28 @@ public class WaitFrame extends JFrame {
 		textLabel = new JLabel();
 		textLabel.setText(text);
 		setLabelSettings(textLabel);
-		addListener();
+		addListener(game);
 		
 		add(textLabel);
 		add(exitBtn);
 		
 		pack();
 	}
-	
-	private void addListener() {
+
+
+	private void addListener(Game game) {
 		exitBtn.addActionListener(new ActionListener() {
 			
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				dispose();
-				Main.endGame();
+				game.endGame(false, true);
 			}
 		});
 	}
 
 	private void setLabelSettings(JLabel label) {
-		Dimension dim = new Dimension(200, 100);
+		Dimension dim = new Dimension(500, 100);
 		label.setSize(dim);
 		label.setPreferredSize(dim);
 		label.setMinimumSize(dim);

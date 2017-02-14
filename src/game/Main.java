@@ -82,12 +82,13 @@ public class Main {
 		mainMenu.setVisible(true);
 	}
 	
-	public static void startGame() {
-		gameFrame = new Game();
-		gameFrame.setVisible(false);
-		mainMenu.setVisible(false);
-		
+	public static void setShips() {
 		SetShips setShips = new SetShips(gameFrame);
 		setShips.setVisible(true);
+	}
+	
+	public static void startGame() {
+		gameFrame = new Game();
+		mainMenu.setVisible(false);	
 	}
 }

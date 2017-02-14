@@ -44,7 +44,7 @@ public class NetworkType extends JFrame {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				Main.gameType = GameType.CLIENT;
-				Main.startGame();
+				Main.setShips();
 				dispose();
 			}
 		});

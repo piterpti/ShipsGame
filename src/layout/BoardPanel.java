@@ -38,13 +38,17 @@ public class BoardPanel extends JPanel {
 	private JLabel boardNameLabel;
 	
 	private boolean enemy = false;
+	
+	private Game game;
 
-	public BoardPanel(boolean aEnemy, String boardName) {
+	public BoardPanel(Game aGame, boolean aEnemy, String boardName) {
 		super(new BorderLayout());
 		fieldPanel = new JPanel(new GridLayout(11, 11));
 		
 		fields = new LinkedList<>();
 		enemy = aEnemy;
+		game = aGame;
+		
 		addLabels();
 		add(fieldPanel, BorderLayout.CENTER);
 		
@@ -163,10 +167,10 @@ public class BoardPanel extends JPanel {
 
 		Point clickedPoint = new Point(clicked.getxPos(), clicked.getyPos());	
 		if (Main.gameType == GameType.HOST || Main.gameType == GameType.CLIENT) {
-			Message msg = new Message(1, clickedPoint, TypeMsg.ATTACK, Game.move);
-			Game.move(msg);
+			Message msg = new Message(1, clickedPoint, TypeMsg.ATTACK, game.getMove());
+			game.move(msg);
 		} else if (Main.gameType == GameType.USER_VS_COMPUTER) {
-			Game.userMove(clickedPoint);
+			game.userMove(clickedPoint);
 		}
 		
 		setCursor(DEFAULT_CUROSR);
@@ -181,7 +185,7 @@ public class BoardPanel extends JPanel {
 
 		@Override
 		public void mouseEntered(MouseEvent e) {
-			if (enemy && Game.isYourMove()) {
+			if (enemy && game.isYourMove()) {
 				FieldLabel label = (FieldLabel) e.getComponent();
 				if (label.getFieldType() == FieldType.EMPTY ||
 						label.getFieldType() == FieldType.SHIP) {
@@ -203,7 +207,7 @@ public class BoardPanel extends JPanel {
 		@Override
 		public void mouseReleased(MouseEvent e) {
 			FieldLabel label = (FieldLabel) e.getComponent();
-			if (Game.isYourMove() && enemy) {
+			if (game.isYourMove() && enemy) {
 				handleClickEvent(label);
 			}
 			logClick(label);

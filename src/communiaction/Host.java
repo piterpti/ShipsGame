@@ -26,12 +26,18 @@ public class Host extends Thread {
 	private boolean endGame = false;
 	
 	private Object lock = new Object();
+	private Object connectionLock = new Object();
 	
 	private Message receivedMsg = null;
 	
-	public Host(int aPort, Move aStartMove) {
+	private boolean clientConnected = false;
+	
+	private Game game;
+	
+	public Host(Game aGame, int aPort, Move aStartMove) {
 		port = aPort;
 		startMove = aStartMove;
+		game = aGame;
 		configureServer();
 	}
 	
@@ -60,6 +66,8 @@ public class Host extends Thread {
 				socket = hostServer.accept();
 				LOGGER.info("Client accepted: " + socket.toString());
 				
+				setClientConnected(true);
+				
 				streamOut  = new ObjectOutputStream(socket.getOutputStream());
 				streamIn = new ObjectInputStream((socket.getInputStream()));
 				
@@ -71,7 +79,7 @@ public class Host extends Thread {
 						LOGGER.info("Message from client: " + receivedMsg.toString());
 					}
 					
-					Game.hostRecMsg();
+					game.hostRecMsg();
 					receivedMsg = null;
 					
 				}
@@ -125,11 +133,19 @@ public class Host extends Thread {
 		}
 	}
 	
-	public boolean isEndGame() {
-		return endGame;
-	}
-	
 	public void setEndGame(boolean aEndGame) {
 		endGame = aEndGame;
+	}
+	
+	public boolean isClientConnected() {
+		synchronized (connectionLock) {
+			return clientConnected;
+		}
+	}
+	
+	private void setClientConnected(boolean aClientConnected) {
+		synchronized (connectionLock) {
+			clientConnected = aClientConnected;
+		}
 	}
 }

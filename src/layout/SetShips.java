@@ -73,7 +73,7 @@ public class SetShips extends JFrame {
 					game.setVisible(true);
 					game.setMyBoard(board);
 				} else {
-					Main.backToMenu();
+					Main.startGame();
 				}
 			}
 		});
