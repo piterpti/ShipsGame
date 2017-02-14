@@ -23,10 +23,11 @@ public class Host extends Thread {
 	
 	private Move startMove;
 	
-	private boolean endGame = false;
+	private boolean gameEnd = false;
 	
 	private Object lock = new Object();
 	private Object connectionLock = new Object();
+	private Object endLock = new Object();
 	
 	private Message receivedMsg = null;
 	
@@ -59,7 +60,7 @@ public class Host extends Thread {
 			return;
 		}
 		
-		while (true && !endGame) {
+		while (true && !gameEnd) {
 			
 			try {
 				LOGGER.info("Waiting for client connection");
@@ -73,7 +74,7 @@ public class Host extends Thread {
 				
 				streamOut.writeObject(new Message(TypeMsg.WELCOME, startMove));
 				
-				while (!endGame) {
+				while (!gameEnd) {
 					synchronized (lock) {
 						receivedMsg = (Message) streamIn.readObject();
 						LOGGER.info("Message from client: " + receivedMsg.toString());
@@ -133,10 +134,6 @@ public class Host extends Thread {
 		}
 	}
 	
-	public void setEndGame(boolean aEndGame) {
-		endGame = aEndGame;
-	}
-	
 	public boolean isClientConnected() {
 		synchronized (connectionLock) {
 			return clientConnected;
@@ -146,6 +143,18 @@ public class Host extends Thread {
 	private void setClientConnected(boolean aClientConnected) {
 		synchronized (connectionLock) {
 			clientConnected = aClientConnected;
+		}
+	}
+	
+	public void setEndGame(boolean aGameEnd) {
+		synchronized (endLock) {
+			gameEnd = aGameEnd;
+		}
+	}
+	
+	public boolean isEndGame() {
+		synchronized (endLock) {
+			return gameEnd;
 		}
 	}
 }

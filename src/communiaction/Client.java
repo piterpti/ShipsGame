@@ -17,6 +17,7 @@ public class Client extends Thread {
 	
 	private Object lock = new Object();
 	private Object connectionLock = new Object();
+	private Object endLock = new Object();
 	
 	private Message receivedMsg = null;
 	
@@ -92,7 +93,7 @@ public class Client extends Thread {
 		}
 		catch (Exception e) {
 			LOGGER.warning("Problem with connection on port " + ConnectionConfig.PORT + ": " + e.toString());
-			e.printStackTrace();
+			
 		} finally {
 			closeConn();
 		}
@@ -128,6 +129,18 @@ public class Client extends Thread {
 	public boolean isConnected() {
 		synchronized (connectionLock) {
 			return connected;
+		}
+	}
+	
+	public void setEndGame(boolean aGameEnd) {
+		synchronized (endLock) {
+			gameEnd = aGameEnd;
+		}
+	}
+	
+	public boolean isEndGame() {
+		synchronized (endLock) {
+			return gameEnd;
 		}
 	}
 }
